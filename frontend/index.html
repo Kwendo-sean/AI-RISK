@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Will AI Take My Job? — Predictive Analytics Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{
+  --bg:#07070f;--sur:rgba(255,255,255,.034);--sur2:rgba(255,255,255,.06);
+  --bdr:rgba(255,255,255,.09);--bdr2:rgba(255,255,255,.18);
+  --red:#E74C3C;--red-d:rgba(231,76,60,.12);--red-b:rgba(231,76,60,.28);
+  --grn:#27AE60;--amb:#F39C12;--blu:#3498DB;--pur:#9B59B6;
+  --txt:rgba(255,255,255,.93);--mut:rgba(255,255,255,.44);--fnt:rgba(255,255,255,.055);
+  --fd:'Playfair Display',Georgia,serif;--fb:'DM Sans',system-ui;--fm:'Share Tech Mono',monospace;--fui:'Plus Jakarta Sans',system-ui;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{width:100%;height:100%}
+body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:var(--fb);-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+body::after{content:'';position:fixed;inset:0;z-index:998;pointer-events:none;opacity:.024;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+#bgc{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.38}
+#flash{position:fixed;inset:0;z-index:999;pointer-events:none;opacity:0}
+@keyframes shk{0%,100%{transform:translate(0)}15%{transform:translate(-9px,4px)}30%{transform:translate(9px,-4px)}50%{transform:translate(-6px,6px)}70%{transform:translate(6px,-3px)}85%{transform:translate(-3px,2px)}}
+.shaking{animation:shk .5s ease}
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;
+  justify-content:space-between;padding:14px 28px;background:transparent;
+  border-bottom:none}
+.nlogo{font-family:var(--fui);font-size:12px;font-weight:600;display:flex;align-items:center;gap:9px;line-height:1.2}
+.npulse{width:7px;height:7px;border-radius:50%;background:var(--red);animation:pdot 2.4s ease infinite}
+@keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.65)}}
+.nsteps{display:flex;gap:5px;align-items:center}
+.sd{width:5px;height:5px;border-radius:50%;background:var(--bdr);transition:all .3s}
+.sd.done{background:var(--red)}.sd.act{background:#fff;transform:scale(1.4)}
+.nlbl{font-size:11px;color:var(--mut);letter-spacing:.04em}
+.scr{position:fixed;inset:0;z-index:10;display:flex;align-items:center;
+  justify-content:center;padding:62px 20px 20px;overflow-y:auto;
+  opacity:0;pointer-events:none;transform:translateY(22px);
+  transition:opacity .35s,transform .35s}
+.scr.on{opacity:1;pointer-events:all;transform:translateY(0)}
+.scr::-webkit-scrollbar{width:2px}
+.scr::-webkit-scrollbar-thumb{background:var(--red-b);border-radius:2px}
+h1,h2,h3{font-family:var(--fd);letter-spacing:-.01em;line-height:1.07}
+.eye{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);font-weight:600;margin-bottom:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:11px;
+  font-family:var(--fui);font-size:14px;font-weight:600;cursor:pointer;border:none;
+  letter-spacing:-.01em;transition:all .18s}
+.btn-r{background:var(--red);color:#fff}.btn-r:hover{background:#c0392b;transform:translateY(-1px)}
+.btn-r:active{transform:scale(.97)}.btn-r:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
+.btn-o{background:transparent;color:var(--mut);border:1px solid var(--bdr)}
+.btn-o:hover{border-color:var(--bdr2);color:var(--txt)}.btn-o:active{transform:scale(.97)}
+.btn-big{padding:15px 32px;font-size:15px;border-radius:12px;width:100%;justify-content:center}
+.search-wrap{display:flex;align-items:center;gap:12px;padding:13px 18px;background:var(--sur);
+  border:1px solid var(--bdr);border-radius:13px;transition:border-color .2s}
+.search-wrap:focus-within{border-color:var(--red-b)}
+.s-inp{flex:1;background:none;border:none;outline:none;color:var(--txt);font-size:15px;font-family:var(--fb);caret-color:var(--red)}
+.s-inp::placeholder{color:var(--mut)}
+.pill-row{display:flex;gap:7px;flex-wrap:wrap}
+.ipill{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:500;border:1px solid var(--bdr);
+  background:var(--sur);color:var(--mut);cursor:pointer;transition:all .15s;white-space:nowrap}
+.ipill:hover{border-color:var(--bdr2);color:var(--txt)}.ipill.on{background:var(--red);border-color:var(--red);color:#fff}
+.career-row{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;
+  border-radius:10px;border:1px solid var(--bdr);background:var(--sur);cursor:pointer;transition:all .16s;gap:12px}
+.career-row:hover{border-color:var(--red-b);background:var(--red-d)}
+.career-row.sel{border-color:var(--red);background:var(--red-d)}
+.hptrack{height:8px;background:var(--fnt);border-radius:4px;overflow:hidden}
+.hpfill{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.22,1,.36,1)}
+.term{background:#020810;border:1px solid rgba(0,255,136,.14);border-radius:13px;padding:20px 22px;
+  font-family:var(--fm);font-size:12px;color:#00ff88;line-height:1.85;min-height:220px;max-height:340px;overflow-y:auto}
+.term .dim{color:rgba(0,255,136,.4)}.term .bright{color:#fff;font-weight:bold}.term .red{color:#ff4757}
+.term-cursor{display:inline-block;width:8px;height:14px;background:#00ff88;vertical-align:middle;animation:blink .9s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.slot-drum{height:88px;overflow:hidden;position:relative;border-radius:10px;background:rgba(0,0,0,.55);border:1px solid var(--bdr)}
+.slot-drum::before,.slot-drum::after{content:'';position:absolute;left:0;right:0;height:24px;z-index:5;pointer-events:none}
+.slot-drum::before{top:0;background:linear-gradient(to bottom,var(--bg),transparent)}
+.slot-drum::after{bottom:0;background:linear-gradient(to top,var(--bg),transparent)}
+.slot-strip{position:absolute;top:0;left:0;width:100%;will-change:transform}
+.slot-item{height:88px;display:flex;align-items:center;justify-content:center;font-family:var(--fui);font-weight:700;font-size:22px;user-select:none}
+.slot-win{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:88px;border-top:1px solid var(--red-b);border-bottom:1px solid var(--red-b);pointer-events:none;z-index:4}
+.threat-card{border:1px solid rgba(231,76,60,.32);border-radius:13px;background:rgba(231,76,60,.055);padding:15px;
+  opacity:0;transform:translateY(14px);transition:opacity .45s,transform .45s,border-color .3s,background .3s}
+.threat-card.show{opacity:1;transform:translateY(0)}.threat-card.hit{border-color:rgba(231,76,60,.75);background:rgba(231,76,60,.13)}
+.threat-num{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--red);margin-bottom:5px}
+.threat-title{font-family:var(--fui);font-size:13px;font-weight:600;margin-bottom:4px}
+.threat-body{font-size:11px;color:var(--mut);line-height:1.55;margin-bottom:8px}
+.threat-dmg{font-family:var(--fui);font-size:17px;font-weight:700;color:var(--red);display:flex;align-items:center;gap:5px}
+.dmg-float{position:absolute;font-family:var(--fui);font-size:20px;font-weight:700;pointer-events:none;z-index:100;animation:dfloat .85s ease forwards}
+@keyframes dfloat{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(1.3)}}
+.algo-spin{animation:aspin 5s linear infinite}
+@keyframes aspin{to{transform:rotate(360deg)}}
+#cam-preview{width:220px;height:220px;border-radius:50%;object-fit:cover;display:none;border:2px solid var(--red-b)}
+#cam-canvas{display:none}
+.cam-ring{width:240px;height:240px;border-radius:50%;border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;position:relative;margin:0 auto;background:var(--sur)}
+.skel{border-radius:8px;background:linear-gradient(90deg,var(--sur) 25%,var(--sur2) 50%,var(--sur) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite}
+@keyframes shimmer{to{background-position:-200% 0}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{0%{transform:scale(.82);opacity:0}60%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
+@keyframes pulseRing{0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,.45)}50%{box-shadow:0 0 0 14px rgba(231,76,60,0)}}
+.pulse-ring{animation:pulseRing 2.2s ease infinite}
+/* Map panel transition */
+.map-panel-col{transition:opacity .32s,transform .32s}
+.map-panel-col.dim{opacity:.4;transform:translateY(6px)}
+.map-panel-col.lit{opacity:1;transform:translateY(0)}
+/* Map option buttons */
+.mopt{width:100%;padding:10px 14px;text-align:left;background:var(--sur);border:1px solid var(--bdr);
+  border-radius:9px;color:var(--txt);font-family:var(--fb);font-size:13px;line-height:1.45;
+  cursor:pointer;transition:all .15s}
+.mopt:hover{border-color:var(--bdr2)}.mopt.sel{border-color:var(--red);background:var(--red-d)}
+/* ── Responsive ─────────────────────────────────────────────── */
+@media(max-width:720px){
+  .map-cols{grid-template-columns:1fr!important}
+  .map-panel-col{order:-1}
+  .nav{padding:12px 16px}
+  .nlbl{display:none}
+  .scr{padding:56px 14px 16px}
+  .btn-big{font-size:14px;padding:13px 20px}
+  .slot-drum{height:70px}.slot-item{height:70px;font-size:18px}
+  .slot-win{height:70px}
+}
+@media(max-width:480px){
+  h1{font-size:clamp(30px,9vw,48px)!important}
+  .threat-card{padding:11px}
+  .threat-title{font-size:12px}
+  #s5 .scr > div,[id^="s"] > div{padding-left:0;padding-right:0}
+  .btn{padding:11px 18px;font-size:13px}
+  #s6-arena{height:260px}
+}
+@media(min-width:1400px){
+  .scr > div{max-width:min(var(--mw,760px),90vw)}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+/* ── Touch-friendly tap targets ─────────────────────────────── */
+.mopt{min-height:44px;display:flex;align-items:center}
+.ipill{min-height:36px;display:inline-flex;align-items:center}
+/* ── Hero particle dots ─────────────────────────────────────── */
+.hero-dot{position:fixed;border-radius:50%;background:var(--red);pointer-events:none;z-index:1;opacity:.55}
+@keyframes heroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+</style>
+</head>
+<body>
+<canvas id="bgc"></canvas>
+<div id="flash"></div>
+<div id="shake-root">
+
+<nav class="nav">
+  <div class="nlogo"><div class="npulse"></div>Predictive Analytics Lab</div>
+  <div class="nsteps" id="nsteps"></div>
+  <div class="nlbl" id="nlbl">futureskills.predictiveanalyticslab.ai</div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     S0 — CAREER BROWSER
+═══════════════════════════════════════════════════════════ -->
+<section class="scr on" id="s0">
+<div style="width:100%;max-width:680px;position:relative;padding-top:32px">
+  <!-- Glow orb -->
+  <div style="position:absolute;top:60px;left:50%;transform:translateX(-50%);width:480px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(180,28,20,.55) 0%,rgba(140,10,10,.28) 40%,transparent 70%);filter:blur(10px);pointer-events:none;z-index:0"></div>
+
+  <!-- Title -->
+  <div style="text-align:center;margin-bottom:20px;position:relative;z-index:1">
+    <h1 style="font-size:clamp(42px,7vw,80px);font-weight:800;margin-bottom:12px;animation:fadeUp .4s .05s ease both;line-height:1.05">
+      <span style="color:var(--red)">Will AI</span> Take<br>My Job?
+    </h1>
+    <p style="color:var(--mut);font-size:15px;line-height:1.65;max-width:360px;margin:0 auto 22px;animation:fadeUp .4s .1s ease both">
+      Search your career. Face the algorithm.<br>Earn your comeback.
+    </p>
+    <div style="display:flex;gap:32px;justify-content:center;animation:fadeUp .4s .14s ease both">
+      <div style="text-align:center"><div style="font-family:var(--fd);font-size:20px;font-weight:700;color:var(--red)" id="st-careers">—</div><div style="font-family:var(--fui);font-size:10px;color:var(--mut);letter-spacing:.04em;text-transform:uppercase">Careers</div></div>
+      <div style="text-align:center"><div style="font-family:var(--fd);font-size:20px;font-weight:700;color:var(--red)" id="st-sectors">—</div><div style="font-family:var(--fui);font-size:10px;color:var(--mut);letter-spacing:.04em;text-transform:uppercase">Sectors</div></div>
+      <div style="text-align:center"><div style="font-family:var(--fd);font-size:20px;font-weight:700;color:var(--red)">2.8M+</div><div style="font-family:var(--fui);font-size:10px;color:var(--mut);letter-spacing:.04em;text-transform:uppercase">Workers</div></div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div style="margin-bottom:10px;animation:fadeUp .4s .16s ease both;position:relative;z-index:1">
+    <div class="search-wrap">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="s-inp" id="srch" placeholder="Search — Nurse, Boda Boda, Accountant, Jua Kali..." autocomplete="off" spellcheck="false" oninput="onSearch()">
+      <span id="srch-count" style="font-size:11px;color:var(--mut);white-space:nowrap"></span>
+    </div>
+  </div>
+  <div class="pill-row" id="ipills" style="margin-bottom:10px;animation:fadeUp .4s .18s ease both;position:relative;z-index:1"></div>
+  <div id="career-list" style="display:flex;flex-direction:column;gap:5px;max-height:240px;overflow-y:auto;padding-right:4px;margin-bottom:14px;position:relative;z-index:1">
+    <div style="text-align:center;padding:24px;color:var(--mut);font-size:13px">Search a career or select a sector above</div>
+  </div>
+  <div style="text-align:center;animation:fadeUp .4s .2s ease both;position:relative;z-index:1">
+    <button class="btn btn-r" id="s0-btn" disabled onclick="goTo(1)">
+      Enter the career map
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     S1 — THE PERSONALITY TRIAL (IS the career map)
+═══════════════════════════════════════════════════════════ -->
+<section class="scr" id="s1">
+<div style="width:100%;max-width:940px">
+
+  <div style="text-align:center;margin-bottom:16px">
+    <div class="eye">The Personality Trial</div>
+    <h2 style="font-size:clamp(20px,3vw,30px);font-weight:700;margin-bottom:4px" id="map-title">Navigate your career terrain</h2>
+    <p style="font-size:13px;color:var(--mut)" id="map-subtitle">Complete 3 checkpoints to discover your champion and Career HP</p>
+  </div>
+
+  <div class="map-cols" style="display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start">
+
+    <!-- LEFT: map -->
+    <div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:13px">
+        <span style="font-size:11px;color:var(--mut);min-width:58px">Career HP</span>
+        <div class="hptrack" style="flex:1;height:7px"><div class="hpfill" id="map-hpfill" style="width:0%;background:var(--grn)"></div></div>
+        <span style="font-size:12px;font-weight:600;min-width:50px;text-align:right" id="map-hpnum">0 / 100</span>
+      </div>
+
+      <div style="position:relative;border-radius:15px;overflow:hidden;
+        background:linear-gradient(155deg,#080e1a 0%,#0c0617 50%,#070f0b 100%);
+        border:1px solid var(--bdr);padding:22px 12px 16px">
+
+        <!-- Terrain labels -->
+        <div style="position:absolute;top:13px;left:16px;font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:rgba(39,174,96,.48);font-weight:500">Safe highlands</div>
+        <div style="position:absolute;bottom:28px;left:16px;font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:rgba(243,156,18,.4);font-weight:500">Exposed valley</div>
+
+        <svg viewBox="0 0 620 200" style="display:block;width:100%;height:auto">
+          <defs>
+            <filter id="fg"><feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            <filter id="fr"><feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          </defs>
+          <!-- Zone bands -->
+          <rect x="10" y="50" width="600" height="72" rx="8" fill="rgba(39,174,96,.032)"/>
+          <rect x="10" y="118" width="600" height="72" rx="8" fill="rgba(243,156,18,.032)"/>
+          <line x1="10" y1="88" x2="610" y2="88" stroke="rgba(255,255,255,.02)" stroke-width="1"/>
+          <!-- Paths dim -->
+          <path d="M58 158 C118 158 158 88 220 88"  fill="none" stroke="rgba(255,255,255,.052)" stroke-width="2.5" stroke-dasharray="6 5"/>
+          <path d="M220 88 C288 88 318 152 388 152" fill="none" stroke="rgba(255,255,255,.052)" stroke-width="2.5" stroke-dasharray="6 5"/>
+          <path d="M388 152 C448 152 490 76 555 76"  fill="none" stroke="rgba(255,255,255,.052)" stroke-width="2.5" stroke-dasharray="6 5"/>
+          <!-- Paths done -->
+          <path id="mseg0" d="M58 158 C118 158 158 88 220 88"  fill="none" stroke="#1D9E75" stroke-width="2.5" stroke-dasharray="6 5" opacity="0" filter="url(#fg)"/>
+          <path id="mseg1" d="M220 88 C288 88 318 152 388 152" fill="none" stroke="#1D9E75" stroke-width="2.5" stroke-dasharray="6 5" opacity="0" filter="url(#fg)"/>
+          <path id="mseg2" d="M388 152 C448 152 490 76 555 76"  fill="none" stroke="#1D9E75" stroke-width="2.5" stroke-dasharray="6 5" opacity="0" filter="url(#fg)"/>
+          <!-- Start -->
+          <circle cx="58" cy="158" r="6" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
+          <text x="58" y="176" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.26)" font-family="var(--fd)">START</text>
+          <!-- CP1 -->
+          <g id="mcp1g" onclick="mapTryOpen(0)" style="cursor:pointer">
+            <circle cx="220" cy="88" r="27" fill="rgba(83,74,183,.1)" stroke="rgba(83,74,183,.32)" stroke-width="1.5"/>
+            <circle id="mcp1c" cx="220" cy="88" r="20" fill="#534AB7" stroke="#3C3489" stroke-width="2"/>
+            <circle cx="220" cy="88" r="11" fill="none" stroke="rgba(255,255,255,.14)" stroke-width="1"/>
+            <text x="220" y="93" text-anchor="middle" font-size="14" font-weight="700" fill="white" font-family="var(--fd)">1</text>
+          </g>
+          <text id="mcp1l" x="220" y="127" text-anchor="middle" font-size="9" fill="rgba(83,74,183,.8)" font-weight="600" font-family="var(--fd)" letter-spacing=".07em">SKILLS</text>
+          <!-- CP2 -->
+          <g id="mcp2g" onclick="mapTryOpen(1)" style="cursor:not-allowed;opacity:.34">
+            <circle cx="388" cy="152" r="27" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.07)" stroke-width="1.5"/>
+            <circle id="mcp2c" cx="388" cy="152" r="20" fill="rgba(255,255,255,.07)" stroke="rgba(255,255,255,.14)" stroke-width="2"/>
+            <text x="388" y="157" text-anchor="middle" font-size="14" font-weight="700" fill="rgba(255,255,255,.32)" font-family="var(--fd)">2</text>
+          </g>
+          <text id="mcp2l" x="388" y="191" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.2)" font-weight="600" font-family="var(--fd)" letter-spacing=".07em">WORK STYLE</text>
+          <!-- CP3 -->
+          <g id="mcp3g" onclick="mapTryOpen(2)" style="cursor:not-allowed;opacity:.34">
+            <circle cx="555" cy="76" r="27" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.07)" stroke-width="1.5"/>
+            <circle id="mcp3c" cx="555" cy="76" r="20" fill="rgba(255,255,255,.07)" stroke="rgba(255,255,255,.14)" stroke-width="2"/>
+            <text x="555" y="81" text-anchor="middle" font-size="14" font-weight="700" fill="rgba(255,255,255,.32)" font-family="var(--fd)">3</text>
+          </g>
+          <text id="mcp3l" x="555" y="115" text-anchor="middle" font-size="9" fill="rgba(255,255,255,.2)" font-weight="600" font-family="var(--fd)" letter-spacing=".07em">FUTURE</text>
+          <!-- Traveller -->
+          <circle id="mtrav" cx="58" cy="158" r="9" fill="#E74C3C" stroke="white" stroke-width="2.5" filter="url(#fr)"/>
+        </svg>
+      </div>
+
+      <p id="map-hint" style="font-size:12px;color:var(--mut);text-align:center;margin-top:9px;min-height:18px"></p>
+    </div>
+
+    <!-- RIGHT: question panel — part of page, not a modal -->
+    <div id="map-panel" class="map-panel-col dim" style="border-radius:14px;border:1px solid var(--bdr);
+      background:rgba(10,8,22,.94);backdrop-filter:blur(14px);overflow:hidden;min-height:340px;
+      display:flex;flex-direction:column">
+
+      <!-- State: idle -->
+      <div id="pnl-idle" style="padding:36px 22px;text-align:center;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
+        <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="1.3">
+          <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+        </svg>
+        <p style="font-size:13px;color:var(--mut);line-height:1.65">Tap a glowing<br>checkpoint to begin</p>
+      </div>
+
+      <!-- State: question active -->
+      <div id="pnl-q" style="display:none;padding:22px 20px;flex-direction:column">
+        <div id="pnl-zone" style="font-size:9px;letter-spacing:.11em;text-transform:uppercase;color:var(--red);font-weight:600;margin-bottom:9px"></div>
+        <div id="pnl-dots" style="display:flex;gap:6px;margin-bottom:13px"></div>
+        <p id="pnl-q-text" style="font-family:var(--fd);font-size:14px;font-weight:500;color:var(--txt);line-height:1.52;margin-bottom:15px;min-height:60px"></p>
+        <div id="pnl-opts" style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span id="pnl-counter" style="font-size:11px;color:var(--mut)"></span>
+          <span id="pnl-next-hint" style="font-size:11px;color:var(--mut);opacity:0;transition:opacity .3s">Auto-advancing...</span>
+          <button id="pnl-next" class="btn btn-r" disabled onclick="mapAdvance()"
+            style="padding:10px 20px;font-size:13px;opacity:.35;display:none">Next →</button>
+        </div>
+      </div>
+
+      <!-- State: avatar reveal -->
+      <div id="pnl-reveal" style="display:none;padding:28px 22px;text-align:center">
+        <div id="pnl-av-icon" style="width:60px;height:60px;border-radius:14px;border:2px solid transparent;
+          display:flex;align-items:center;justify-content:center;margin:0 auto 12px;background:rgba(255,255,255,.04)"></div>
+        <div style="font-size:9px;color:var(--mut);letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px">Your champion</div>
+        <div id="pnl-av-name" style="font-family:var(--fd);font-size:22px;font-weight:700;margin-bottom:3px"></div>
+        <div id="pnl-av-cls" style="font-size:11px;font-weight:600;letter-spacing:.05em;margin-bottom:7px"></div>
+        <div id="pnl-av-hp" style="font-size:12px;color:var(--mut);line-height:1.55;margin-bottom:20px"></div>
+        <button class="btn btn-r btn-big" style="font-size:13px" onclick="goTo(2)">
+          Choose your face →
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     S2 — SELFIE
+═══════════════════════════════════════════════════════════ -->
+<section class="scr" id="s2">
+<div style="width:100%;max-width:480px;text-align:center">
+  <div class="eye">Choose your face</div>
+  <h2 style="font-size:clamp(22px,4vw,34px);font-weight:700;margin-bottom:10px">Take a selfie?</h2>
+  <p style="color:var(--mut);font-size:14px;line-height:1.65;margin-bottom:26px;max-width:360px;margin-inline:auto">
+    Your face becomes your avatar on the Career Risk Card. Or skip to use your champion icon.
+  </p>
+  <div class="cam-ring" id="cam-ring" style="margin-bottom:22px">
+    <div id="cam-placeholder" style="text-align:center">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--bdr2)" stroke-width="1.2" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      <div style="font-size:11px;color:var(--mut);margin-top:8px">Camera preview</div>
+    </div>
+    <video id="cam-preview" playsinline muted></video>
+    <canvas id="cam-canvas" width="220" height="220"></canvas>
+    <img id="selfie-img" style="width:220px;height:220px;border-radius:50%;object-fit:cover;display:none;border:2px solid var(--red-b);" alt="selfie">
+  </div>
+  <div id="cam-controls" style="display:flex;flex-direction:column;gap:10px;align-items:center">
+    <button class="btn btn-r" onclick="startCamera()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/></svg>
+      Open camera
+    </button>
+    <button class="btn btn-o" onclick="skipSelfie()">Skip — use champion icon</button>
+  </div>
+  <div id="selfie-controls" style="display:none;flex-direction:column;gap:10px;align-items:center">
+    <button class="btn btn-r" onclick="captureSelfie()">Take photo</button>
+    <button class="btn btn-o" onclick="retakeSelfie()">Retake</button>
+  </div>
+  <div id="selfie-done" style="display:none;flex-direction:column;gap:10px;align-items:center">
+    <button class="btn btn-r" onclick="goTo(3)">Use this photo →</button>
+    <button class="btn btn-o" onclick="retakeSelfie()">Retake</button>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     S3 — DATA TERMINAL
+═══════════════════════════════════════════════════════════ -->
+<section class="scr" id="s3">
+<div style="width:100%;max-width:620px">
+  <div style="text-align:center;margin-bottom:20px">
+    <div class="eye">AI Threat Analysis</div>
+    <h2 style="font-size:clamp(22px,3.5vw,36px);font-weight:700;margin-bottom:5px">Scanning <span id="scan-title" style="color:var(--red)"></span></h2>
+    <p style="font-size:13px;color:var(--mut)">Cross-referencing Kenyan labour market data</p>
+  </div>
+  <div class="term" id="terminal"><span class="term-cursor"></span></div>
+  <div style="margin-top:11px;display:flex;align-items:center;gap:10px">
+    <div style="flex:1;height:3px;background:var(--fnt);border-radius:2px"><div id="scan-bar" style="height:100%;background:var(--red);border-radius:2px;width:0%;transition:width .3s"></div></div>
+    <span id="scan-pct" style="font-size:11px;color:var(--mut);width:30px;text-align:right">0%</span>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     S4 — SLOT MACHINE VERDICT
+═══════════════════════════════════════════════════════════ -->
+<section class="scr" id="s4">
+<div style="width:100%;max-width:540px;text-align:center">
+  <div class="eye">The Verdict</div>
+  <h2 style="font-size:clamp(22px,4vw,40px);font-weight:700;margin-bottom:6px">Calculating your fate</h2>
+  <p style="color:var(--mut);font-size:13px;margin-bottom:26px">Three drums. Three dimensions of your threat assessment.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:9px">
+    <div><div style="font-size:9px;color:var(--mut);letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px">Threat Level</div><div class="slot-drum"><div class="slot-win"></div><div class="slot-strip" id="drum0"></div></div></div>
+    <div><div style="font-size:9px;color:var(--mut);letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px">Risk Score</div><div class="slot-drum"><div class="slot-win"></div><div class="slot-strip" id="drum1"></div></div></div>
+    <div><div style="font-size:9px;color:var(--mut);letter-spacing:.1em;text-transform:uppercase;margin-bottom:7px">Job Status</div><div class="slot-drum"><div class="slot-win"></div><div class="slot-strip" id="drum2"></div></div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:26px">
+    <div id="lock0" style="height:3px;border-radius:2px;background:var(--bdr);transition:background .4s"></div>
+    <div id="lock1" style="height:3px;border-radius:2px;background:var(--bdr);transition:background .4s"></div>
+    <div id="lock2" style="height:3px;border-radius:2px;background:var(--bdr);transition:background .4s"></div>
+  </div>
+  <div id="verdict-result" style="display:none">
+    <p id="verdict-desc" style="font-size:14px;color:var(--mut);line-height:1.65;max-width:380px;margin:0 auto 22px"></p>
+    <button class="btn btn-r btn-big" onclick="goTo(5)">Enter the battle arena →</button>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     S5 — ROUND 1: ALGORITHM STRIKES
+═══════════════════════════════════════════════════════════ -->
+<section class="scr" id="s5">
+<div style="width:100%;max-width:680px">
+  <div style="text-align:center;margin-bottom:18px">
+    <div class="eye">Round 1</div>
+    <h2 style="font-size:clamp(22px,4vw,38px);font-weight:700;margin-bottom:4px">The Algorithm Strikes First</h2>
+    <p id="r1-sub" style="font-size:13px;color:var(--mut)">Study the threats before you brace for impact</p>
+  </div>
+  <!-- HP bars -->
+  <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:18px;padding:14px;border-radius:12px;background:var(--sur);border:1px solid var(--bdr)">
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mut);margin-bottom:4px"><span id="r1-avname" style="color:var(--txt);font-weight:500">You</span><span id="r1-phnum">100 HP</span></div>
+      <div class="hptrack"><div class="hpfill" id="r1-php" style="width:100%;background:var(--grn)"></div></div>
+    </div>
+    <div style="font-family:var(--fd);font-size:12px;font-weight:600;color:var(--bdr2);padding:0 5px">VS</div>
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mut);margin-bottom:4px"><span style="color:var(--red);font-weight:500">The Algorithm</span><span id="r1-ahnum">—</span></div>
+      <div class="hptrack"><div class="hpfill" id="r1-ahp" style="width:100%;background:var(--red)"></div></div>
+    </div>
+  </div>
+  <!-- Threat cards -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">
+    <div class="threat-card" id="tc0"></div>
+    <div class="threat-card" id="tc1"></div>
+    <div class="threat-card" id="tc2"></div>
+  </div>
+  <!-- Phase A: scanning -->
+  <div id="r1-phA" style="text-align:center">
+    <div id="r1-msg" style="font-size:12px;color:var(--mut);font-family:var(--fm);margin-bottom:13px">Scanning threat vectors...</div>
+    <button class="btn btn-r" id="r1-readbtn" style="display:none" onclick="showBrace()">
+      I've read the threats — show me what I'm up against →
+    </button>
+  </div>
+  <!-- Phase B: brace -->
+  <div id="r1-phB" style="display:none;text-align:center">
+    <p style="font-size:14px;color:var(--mut);margin-bottom:16px;line-height:1.65">The Algorithm deploys all three threats simultaneously.<br><span style="color:var(--txt)">You cannot dodge this.</span></p>
+    <button class="btn btn-r btn-big pulse-ring" onclick="executeAttack()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      BRACE FOR IMPACT
+    </button>
+  </div>
+  <!-- Phase C: aftermath -->
+  <div id="r1-phC" style="display:none;text-align:center">
+    <div id="r1-result" style="font-size:15px;font-family:var(--fd);font-weight:600;margin-bottom:8px"></div>
+    <p style="font-size:13px;color:var(--mut);margin-bottom:20px">Now fight back. Deploy your skills.</p>
+    <button class="btn btn-r btn-big" onclick="goTo(6)">Fight back — skill combat →</button>
+  </div>
+  <!-- Mini fighters -->
+  <div id="mini-fighters" style="display:flex;align-items:center;justify-content:space-between;margin-top:18px;padding:0 22px;opacity:0;transition:opacity .6s">
+    <div id="r1-playerbody" style="position:relative">
+      <svg width="56" height="70" viewBox="0 0 80 100" fill="none">
+        <circle cx="40" cy="18" r="14" stroke="var(--red)" stroke-width="1.5" fill="rgba(231,76,60,.07)"/>
+        <rect x="20" y="34" width="40" height="36" rx="8" stroke="var(--red)" stroke-width="1.5" fill="rgba(231,76,60,.05)"/>
+        <line x1="20" y1="48" x2="4" y2="62" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="60" y1="48" x2="76" y2="62" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="30" y1="70" x2="28" y2="96" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="50" y1="70" x2="52" y2="96" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div id="r1-algobody" style="position:relative">
+      <svg width="64" height="70" viewBox="0 0 90 90" fill="none" class="algo-spin">
+        <polygon points="45,3 80,24 80,66 45,87 10,66 10,24" stroke="rgba(231,76,60,.5)" stroke-width="1.2" fill="rgba(231,76,60,.03)"/>
+        <polygon points="45,16 68,30 68,60 45,74 22,60 22,30" stroke="rgba(231,76,60,.35)" stroke-width="1" fill="rgba(231,76,60,.06)"/>
+        <circle cx="45" cy="45" r="13" fill="rgba(231,76,60,.13)" stroke="var(--red)" stroke-width="1.5"/>
+        <circle cx="45" cy="45" r="5" fill="rgba(231,76,60,.5)"/>
+      </svg>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     S6 — SKILL CARD COMBAT
+═══════════════════════════════════════════════════════════ -->
+<section class="scr" id="s6" style="overflow:hidden;align-items:flex-start;padding-top:62px">
+<div style="width:100%;max-width:740px;position:relative">
+  <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:14px;padding:13px 15px;border-radius:11px;background:var(--sur);border:1px solid var(--bdr)">
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mut);margin-bottom:4px"><span id="s6-avname" style="color:var(--txt);font-weight:500">You</span><span id="s6-phnum">—</span></div>
+      <div class="hptrack" style="height:6px"><div class="hpfill" id="s6-php" style="width:100%;background:var(--grn)"></div></div>
+    </div>
+    <div style="text-align:center;padding:0 5px">
+      <div id="s6-cards-left" style="font-family:var(--fd);font-size:18px;font-weight:700">7</div>
+      <div style="font-size:9px;color:var(--mut);letter-spacing:.06em">CARDS</div>
+    </div>
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mut);margin-bottom:4px"><span style="color:var(--red);font-weight:500">The Algorithm</span><span id="s6-ahnum">—</span></div>
+      <div class="hptrack" style="height:6px"><div class="hpfill" id="s6-ahp" style="width:100%;background:var(--red)"></div></div>
+    </div>
+  </div>
+  <div style="text-align:center;margin-bottom:8px">
+    <div class="eye" style="margin-bottom:2px">Skill Card Combat</div>
+    <p id="s6-instr" style="font-size:12px;color:var(--mut)">Flip a card. Drag to fight back — or add to your skill gap quest.</p>
+  </div>
+  <div id="s6-log" style="background:rgba(0,0,0,.38);border:1px solid var(--bdr);border-radius:8px;padding:8px 13px;min-height:36px;font-size:11px;color:var(--mut);font-family:var(--fm);text-align:center;line-height:1.6;margin-bottom:12px"></div>
+  <div style="position:relative;height:310px" id="s6-arena">
+    <div id="zone-atk" style="position:absolute;bottom:205px;left:8px;width:165px;height:106px;border-radius:11px;border:2px dashed rgba(39,174,96,.33);background:rgba(39,174,96,.04);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;pointer-events:none;transition:all .2s">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(39,174,96,.55)" stroke-width="1.5"><path d="M14.5 17.5L3 6V3h3l11.5 11.5M16 16l4 4M13 11l4-4M3 21l6-6"/></svg>
+      <div style="font-size:9px;color:#27AE60;font-weight:600;letter-spacing:.06em">I HAVE THIS</div>
+      <div style="font-size:9px;color:var(--mut)">Deal damage</div>
+    </div>
+    <div id="zone-gap" style="position:absolute;bottom:205px;right:8px;width:165px;height:106px;border-radius:11px;border:2px dashed rgba(52,152,219,.33);background:rgba(52,152,219,.04);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;pointer-events:none;transition:all .2s">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(52,152,219,.55)" stroke-width="1.5"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      <div style="font-size:9px;color:var(--blu);font-weight:600;letter-spacing:.06em">NOT YET</div>
+      <div style="font-size:9px;color:var(--mut)">Add to quest</div>
+    </div>
+    <div id="s6-hand" style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:680px;height:200px;pointer-events:none"></div>
+  </div>
+  <div style="text-align:center;margin-top:6px">
+    <button id="s6-done" style="display:none" class="btn btn-r btn-big" onclick="goToWeapons()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Equip AI weapons
+    </button>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     S7 — AI WEAPONS LOOT
+═══════════════════════════════════════════════════════════ -->
+<section class="scr" id="s7">
+<div style="width:100%;max-width:740px;padding-bottom:40px">
+  <div style="text-align:center;margin-bottom:24px">
+    <div class="eye">Your Arsenal</div>
+    <h2 style="font-size:clamp(24px,4vw,40px);font-weight:700;margin-bottom:7px" id="s7-headline">AI weapons unlocked</h2>
+    <p style="font-size:14px;color:var(--mut);max-width:440px;margin-inline:auto" id="s7-sub">Matched to your skill gaps</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px">
+    <div style="text-align:center;padding:13px;border-radius:11px;background:var(--sur);border:1px solid var(--bdr)">
+      <div style="font-family:var(--fd);font-size:24px;font-weight:700;color:var(--amb)" id="s7-xp">0</div>
+      <div style="font-size:10px;color:var(--mut);margin-top:2px">XP Earned</div>
+    </div>
+    <div style="text-align:center;padding:13px;border-radius:11px;background:var(--sur);border:1px solid var(--bdr)">
+      <div style="font-family:var(--fd);font-size:24px;font-weight:700;color:var(--red)" id="s7-risk">–%</div>
+      <div style="font-size:10px;color:var(--mut);margin-top:2px">AI Risk</div>
+    </div>
+    <div style="text-align:center;padding:13px;border-radius:11px;background:var(--sur);border:1px solid var(--bdr)">
+      <div style="font-family:var(--fd);font-size:24px;font-weight:700;color:var(--grn)" id="s7-gaps">0</div>
+      <div style="font-size:10px;color:var(--mut);margin-top:2px">Skill Gaps</div>
+    </div>
+  </div>
+  <div id="s7-gap-list" style="margin-bottom:20px;display:none">
+    <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:8px">Skills to level up</div>
+    <div id="s7-gap-tags" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+  </div>
+  <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:11px">AI tools matched to your gaps</div>
+  <div id="s7-weapons" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:10px;margin-bottom:28px"></div>
+  <div id="s7-roadmap" style="display:none;padding:17px 20px;border-radius:12px;border:1px solid rgba(52,152,219,.35);background:rgba(52,152,219,.06);margin-bottom:18px">
+    <div style="display:flex;align-items:center;gap:11px">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--blu)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      <div style="flex:1">
+        <div style="font-family:var(--fd);font-size:13px;font-weight:600;margin-bottom:2px">Technical career detected</div>
+        <div style="font-size:12px;color:var(--mut)" id="s7-roadmap-text">Follow the recommended learning roadmap</div>
+      </div>
+      <button class="btn btn-o" onclick="openRoadmap()" style="font-size:12px;padding:8px 14px;white-space:nowrap">
+        Open roadmap
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+      </button>
+    </div>
+  </div>
+  <div style="padding:20px 22px;border-radius:13px;border:1px solid var(--red-b);background:var(--red-d);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+    <div>
+      <div style="font-family:var(--fd);font-size:15px;font-weight:600;margin-bottom:3px">Ready to future-proof for real?</div>
+      <div style="font-size:13px;color:var(--mut)">Join thousands of Kenyan workers upskilling with PAL.</div>
+    </div>
+    <div style="display:flex;gap:9px;flex-wrap:wrap">
+      <button class="btn btn-r" style="font-size:13px;padding:11px 20px" onclick="openCard()">Get your risk card</button>
+      <button class="btn btn-o" style="font-size:13px;padding:11px 20px" onclick="restart()">Play again</button>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══ EMAIL MODAL ═══════════════════════════════════════════════════════════ -->
+<div id="email-modal" style="position:fixed;inset:0;z-index:600;display:none;align-items:center;
+  justify-content:center;background:rgba(7,7,15,.88);backdrop-filter:blur(10px)">
+  <div style="width:100%;max-width:400px;margin:20px;padding:36px 32px;border-radius:18px;
+    border:1px solid var(--bdr2);background:rgba(10,8,24,.98);box-shadow:0 0 60px rgba(231,76,60,.08)">
+    <div class="eye" style="margin-bottom:10px">Before you enter</div>
+    <h2 style="font-family:var(--fd);font-size:22px;font-weight:700;margin-bottom:8px;letter-spacing:-.03em">Get your Risk Card</h2>
+    <p style="font-size:13px;color:var(--mut);line-height:1.65;margin-bottom:24px">Enter your email to receive a personalised AI Risk Card at the end — showing your career score, champion, and upskilling plan.</p>
+    <div class="search-wrap" style="margin-bottom:8px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--mut)" stroke-width="2" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+      <input id="email-input" class="s-inp" type="email" placeholder="your@email.com" autocomplete="email"
+        style="font-size:14px" onkeydown="if(event.key==='Enter')submitEmail()">
+    </div>
+    <div id="email-err" style="font-size:11px;color:var(--red);min-height:16px;margin-bottom:10px"></div>
+    <button class="btn btn-r btn-big" onclick="submitEmail()" style="margin-bottom:10px">Start the map →</button>
+    <button class="btn btn-o btn-big" onclick="skipEmail()" style="font-size:13px">Skip — continue without card</button>
+  </div>
+</div>
+
+<!-- ═══ RISK CARD MODAL ═══════════════════════════════════════════════════════ -->
+<div id="card-modal" style="position:fixed;inset:0;z-index:600;display:none;align-items:center;
+  justify-content:center;background:rgba(7,7,15,.92);backdrop-filter:blur(12px);overflow-y:auto;padding:20px">
+  <div style="width:100%;max-width:480px;text-align:center">
+    <div class="eye" style="margin-bottom:12px">Your AI Risk Card</div>
+    <canvas id="risk-card-canvas" style="width:100%;max-width:420px;border-radius:16px;display:block;margin:0 auto 20px;box-shadow:0 0 60px rgba(231,76,60,.18)"></canvas>
+    <div style="display:flex;flex-direction:column;gap:9px;align-items:center">
+      <button class="btn btn-r btn-big" onclick="downloadCard()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download card
+      </button>
+      <button class="btn btn-o btn-big" onclick="shareCard()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Share card
+      </button>
+      <div id="card-email-status" style="font-size:12px;color:var(--mut);min-height:18px"></div>
+      <button class="btn btn-o" onclick="closeCardModal()" style="font-size:12px;padding:9px 20px">Close</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /shake-root -->
+
+<script>
+const API      = 'http://localhost:8000';
+const GAME_API = 'http://localhost:8000';
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+const G = {
+  career:null, avatar:null, selfieUrl:null,
+  playerHP:50, algoHP:50, mapHP:0,
+  threats:[], skills:[], xp:0,
+  combatSessionId:null, skillGaps:[], weapons:[],
+  currentScreen:0, userEmail:null,
+};
+
+// ─── AVATAR DATA ──────────────────────────────────────────────────────────────
+const AVATARS = [
+  {id:"pioneer",  name:"The Pioneer",   cls:"Innovator",    c:"#E74C3C"},
+  {id:"strategist",name:"The Strategist",cls:"Planner",     c:"#3498DB"},
+  {id:"builder",  name:"The Builder",   cls:"Maker",        c:"#F39C12"},
+  {id:"analyst",  name:"The Analyst",   cls:"Data Person",  c:"#2ECC71"},
+  {id:"caretaker",name:"The Caretaker", cls:"People-First", c:"#D4537E"},
+  {id:"creator",  name:"The Creator",   cls:"Artist",       c:"#9B59B6"},
+];
+const SVGS = {
+  pioneer:   `<svg width="28" height="28" viewBox="0 0 32 32" fill="none"><polygon points="16,2 28,9 28,23 16,30 4,23 4,9" stroke="currentColor" stroke-width="1.5"/><polygon points="16,8 22,11.5 22,18.5 16,22 10,18.5 10,11.5" fill="currentColor" opacity=".2"/><circle cx="16" cy="16" r="3" fill="currentColor"/></svg>`,
+  strategist:`<svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect x="4" y="4" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="18" y="18" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="18" y="4" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1" opacity=".4"/><rect x="4" y="18" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1" opacity=".4"/><line x1="9" y1="14" x2="9" y2="18" stroke="currentColor" stroke-width="1"/><line x1="23" y1="14" x2="23" y2="18" stroke="currentColor" stroke-width="1"/><line x1="14" y1="9" x2="18" y2="9" stroke="currentColor" stroke-width="1"/><line x1="14" y1="23" x2="18" y2="23" stroke="currentColor" stroke-width="1"/></svg>`,
+  builder:   `<svg width="28" height="28" viewBox="0 0 32 32" fill="none"><rect x="4" y="22" width="24" height="6" rx="2" stroke="currentColor" stroke-width="1.5"/><rect x="8" y="14" width="16" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="4" width="8" height="10" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>`,
+  analyst:   `<svg width="28" height="28" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="12" stroke="currentColor" stroke-width="1.5"/><line x1="4" y1="16" x2="28" y2="16" stroke="currentColor" stroke-width="1"/><path d="M10 7.5 Q16 16 22 7.5" stroke="currentColor" stroke-width="1" fill="none"/><path d="M10 24.5 Q16 16 22 24.5" stroke="currentColor" stroke-width="1" fill="none"/><circle cx="16" cy="16" r="2.5" fill="currentColor"/></svg>`,
+  caretaker: `<svg width="28" height="28" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="11" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M6 28 C6 21 26 21 26 28" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="8" cy="14" r="2.5" stroke="currentColor" stroke-width="1" opacity=".5"/><circle cx="24" cy="14" r="2.5" stroke="currentColor" stroke-width="1" opacity=".5"/></svg>`,
+  creator:   `<svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M4 9 Q16 5 28 9" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M4 16 Q16 12 28 16" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M4 23 Q16 19 28 23" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="16" cy="4" r="2" fill="currentColor"/></svg>`,
+};
+
+// ─── THREE.JS BG — Neural Network (r128 compatible) ───────────────────────────
+;(function(){
+  const canvas=document.getElementById('bgc');
+  const R=new THREE.WebGLRenderer({canvas,alpha:true,antialias:false});
+  R.setPixelRatio(Math.min(devicePixelRatio,1.5));
+  R.setSize(innerWidth,innerHeight);
+
+  const scene=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,1,5000);
+  cam.position.set(0,0,900);
+
+  const NODE_COUNT=innerWidth<600?50:100;
+  const SPREAD=650;
+  const EDGE_DIST=220;
+  const MAX_EDGES=160;
+
+  // ── Node positions & velocities ────────────────────────────────────────────
+  const px=new Float32Array(NODE_COUNT);
+  const py=new Float32Array(NODE_COUNT);
+  const pz=new Float32Array(NODE_COUNT);
+  const vx=new Float32Array(NODE_COUNT);
+  const vy=new Float32Array(NODE_COUNT);
+  const vz=new Float32Array(NODE_COUNT);
+  for(let i=0;i<NODE_COUNT;i++){
+    px[i]=(Math.random()-.5)*SPREAD*2;
+    py[i]=(Math.random()-.5)*SPREAD;
+    pz[i]=(Math.random()-.5)*SPREAD*.8;
+    vx[i]=(Math.random()-.5)*.15;
+    vy[i]=(Math.random()-.5)*.10;
+    vz[i]=(Math.random()-.5)*.06;
+  }
+
+  // ── Points (nodes) ────────────────────────────────────────────────────────
+  const nBuf=new Float32Array(NODE_COUNT*3);
+  const nAttr=new THREE.BufferAttribute(nBuf,3);
+  nAttr.setUsage(THREE.DynamicDrawUsage);
+  const nGeo=new THREE.BufferGeometry();
+  nGeo.setAttribute('position',nAttr);
+  scene.add(new THREE.Points(nGeo,new THREE.PointsMaterial({size:3.8,color:0xE74C3C,transparent:true,opacity:.75,sizeAttenuation:true})));
+  scene.add(new THREE.Points(nGeo,new THREE.PointsMaterial({size:1.8,color:0xffffff,transparent:true,opacity:.15,sizeAttenuation:true})));
+
+  // ── Edges ─────────────────────────────────────────────────────────────────
+  const eBuf=new Float32Array(MAX_EDGES*6);
+  const eAttr=new THREE.BufferAttribute(eBuf,3);
+  eAttr.setUsage(THREE.DynamicDrawUsage);
+  const eGeo=new THREE.BufferGeometry();
+  eGeo.setAttribute('position',eAttr);
+  eGeo.setDrawRange(0,0);
+  scene.add(new THREE.LineSegments(eGeo,new THREE.LineBasicMaterial({color:0xE74C3C,transparent:true,opacity:.12})));
+
+  // ── Accent edges (closer pairs, brighter) ─────────────────────────────────
+  const aBuf=new Float32Array(40*6);
+  const aAttr=new THREE.BufferAttribute(aBuf,3);
+  aAttr.setUsage(THREE.DynamicDrawUsage);
+  const aGeo=new THREE.BufferGeometry();
+  aGeo.setAttribute('position',aAttr);
+  aGeo.setDrawRange(0,0);
+  scene.add(new THREE.LineSegments(aGeo,new THREE.LineBasicMaterial({color:0xff6060,transparent:true,opacity:.30})));
+
+  let t=0;
+  function tick(){
+    requestAnimationFrame(tick);
+    t+=.004;
+
+    // update node positions
+    for(let i=0;i<NODE_COUNT;i++){
+      px[i]+=vx[i]+Math.sin(t*.6+i)*.035;
+      py[i]+=vy[i]+Math.cos(t*.45+i*.8)*.025;
+      pz[i]+=vz[i];
+      if(px[i]> SPREAD)px[i]=-SPREAD; if(px[i]<-SPREAD)px[i]= SPREAD;
+      if(py[i]> SPREAD*.6)py[i]=-SPREAD*.6; if(py[i]<-SPREAD*.6)py[i]= SPREAD*.6;
+      if(pz[i]> SPREAD*.5)pz[i]=-SPREAD*.5; if(pz[i]<-SPREAD*.5)pz[i]= SPREAD*.5;
+      nBuf[i*3]=px[i]; nBuf[i*3+1]=py[i]; nBuf[i*3+2]=pz[i];
+    }
+    nAttr.needsUpdate=true;
+
+    // rebuild edges each frame
+    let ei=0,ai=0;
+    outer:for(let a=0;a<NODE_COUNT;a++){
+      for(let b=a+1;b<NODE_COUNT;b++){
+        if(ei>=MAX_EDGES)break outer;
+        const dx=px[a]-px[b],dy=py[a]-py[b],dz=pz[a]-pz[b];
+        const d=Math.sqrt(dx*dx+dy*dy+dz*dz);
+        if(d<EDGE_DIST){
+          eBuf[ei*6  ]=px[a];eBuf[ei*6+1]=py[a];eBuf[ei*6+2]=pz[a];
+          eBuf[ei*6+3]=px[b];eBuf[ei*6+4]=py[b];eBuf[ei*6+5]=pz[b];
+          ei++;
+          if(d<EDGE_DIST*.4&&ai<40){
+            aBuf[ai*6  ]=px[a];aBuf[ai*6+1]=py[a];aBuf[ai*6+2]=pz[a];
+            aBuf[ai*6+3]=px[b];aBuf[ai*6+4]=py[b];aBuf[ai*6+5]=pz[b];
+            ai++;
+          }
+        }
+      }
+    }
+    eAttr.needsUpdate=true; eGeo.setDrawRange(0,ei*2);
+    aAttr.needsUpdate=true; aGeo.setDrawRange(0,ai*2);
+
+    cam.position.x=Math.sin(t*.15)*55;
+    cam.position.y=Math.cos(t*.11)*28;
+    cam.lookAt(0,0,0);
+    R.render(scene,cam);
+  }
+  tick();
+
+  window.addEventListener('resize',()=>{
+    cam.aspect=innerWidth/innerHeight;
+    cam.updateProjectionMatrix();
+    R.setSize(innerWidth,innerHeight);
+  });
+})();
+
+// ─── NAV + ROUTING ────────────────────────────────────────────────────────────
+const NAV=['Choose career','The personality trial','Your face',
+           'Scanning...','The verdict','Round 1','Skill combat','Your arsenal'];
+const ROUTES=['career-browser','career-map','selfie','scanning','verdict','round-1','skill-combat','arsenal'];
+
+function buildNav(){
+  const el=document.getElementById('nsteps');el.innerHTML='';
+  for(let i=0;i<8;i++){const d=document.createElement('div');d.className='sd'+(i<G.currentScreen?' done':i===G.currentScreen?' act':'');el.appendChild(d);}
+  document.getElementById('nlbl').textContent=NAV[G.currentScreen]||'';
+}
+
+function pushRoute(n){
+  const hash='#/'+ROUTES[n];
+  if(window.location.hash!==hash)history.pushState({screen:n},'',hash);
+}
+
+const INITS={1:initMap,2:initSelfie,3:initTerminal,4:initSlot,5:initRound1,6:initSkillCombat,7:initWeapons};
+function goTo(n){
+  const prev=document.getElementById('s'+G.currentScreen),next=document.getElementById('s'+n);
+  if(!prev||!next||n===G.currentScreen)return;
+  pushRoute(n);
+  gsap.to(prev,{opacity:0,y:-18,duration:.28,ease:'power2.in',onComplete:()=>{
+    prev.classList.remove('on');G.currentScreen=n;buildNav();
+    if(INITS[n])INITS[n]();
+    requestAnimationFrame(()=>{next.classList.add('on');gsap.fromTo(next,{opacity:0,y:20},{opacity:1,y:0,duration:.36,ease:'power2.out'});});
+  }});
+}
+
+// Handle browser back/forward
+window.addEventListener('popstate',e=>{
+  const n=e.state?.screen??0;
+  if(n===G.currentScreen)return;
+  const prev=document.getElementById('s'+G.currentScreen),next=document.getElementById('s'+n);
+  if(!prev||!next)return;
+  prev.classList.remove('on');G.currentScreen=n;buildNav();
+  if(INITS[n])INITS[n]();
+  next.classList.add('on');gsap.fromTo(next,{opacity:0,y:20},{opacity:1,y:0,duration:.36,ease:'power2.out'});
+});
+
+// Deep-link on first load
+(function initRoute(){
+  const hash=window.location.hash;
+  const idx=ROUTES.findIndex(r=>hash==='#/'+r);
+  if(idx>0){
+    document.getElementById('s0').classList.remove('on');
+    G.currentScreen=idx;buildNav();
+    document.getElementById('s'+idx).classList.add('on');
+    if(INITS[idx])INITS[idx]();
+  } else {
+    pushRoute(0);
+  }
+})();
+
+// ─── API ──────────────────────────────────────────────────────────────────────
+async function api(path){try{const r=await fetch(API+path);if(!r.ok)throw 0;return await r.json();}catch{return null;}}
+async function gameApi(path,body){
+  try{const r=await fetch(GAME_API+path,body?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{});if(!r.ok)throw 0;return await r.json();}catch{return null;}
+}
+
+// ─── Hero particles ───────────────────────────────────────────────────────────
+(function spawnDots(){
+  const dots=[
+    {top:'12%',left:'8%',s:4},{top:'22%',left:'18%',s:2.5},{top:'8%',left:'62%',s:3},
+    {top:'18%',left:'78%',s:2},{top:'35%',left:'5%',s:2},{top:'45%',left:'90%',s:3.5},
+    {top:'60%',left:'12%',s:2.5},{top:'55%',left:'82%',s:2},{top:'70%',left:'6%',s:3},
+    {top:'75%',left:'92%',s:2.5},{top:'80%',left:'25%',s:2},{top:'85%',left:'68%',s:3},
+    {top:'28%',left:'95%',s:2},{top:'90%',left:'45%',s:2.5},{top:'5%',left:'40%',s:2},
+    {top:'48%',left:'3%',s:1.5},{top:'38%',left:'97%',s:1.5},{top:'65%',left:'50%',s:1.5},
+  ];
+  dots.forEach((d,i)=>{
+    const el=document.createElement('div');
+    el.className='hero-dot';
+    el.style.cssText=`top:${d.top};left:${d.left};width:${d.s}px;height:${d.s}px;animation:heroFloat ${3+i%3}s ease-in-out infinite;animation-delay:${(i*0.4)%3}s`;
+    document.body.appendChild(el);
+  });
+})();
+
+// ─── S0: CAREER BROWSER ───────────────────────────────────────────────────────
+let searchDb,activeSector='All';
+(async function boot(){
+  const [stats,sectors]=await Promise.all([api('/api/stats'),api('/api/sectors')]);
+  if(stats){document.getElementById('st-careers').textContent=stats.total_careers;document.getElementById('st-sectors').textContent=stats.sectors;}
+  if(sectors)buildPills(sectors.sectors);
+})();
+function buildPills(sectors){
+  const row=document.getElementById('ipills');row.innerHTML='';
+  const all=document.createElement('div');all.className='ipill on';all.textContent='All sectors';
+  all.onclick=()=>filterSector('All',all);row.appendChild(all);
+  sectors.forEach(s=>{const p=document.createElement('div');p.className='ipill';
+    p.textContent=`${s.name} (${s.count})`;p.onclick=()=>filterSector(s.name,p);row.appendChild(p);});
+}
+function filterSector(n,el){activeSector=n;document.querySelectorAll('.ipill').forEach(p=>p.classList.remove('on'));el.classList.add('on');fetchCareers();}
+function onSearch(){clearTimeout(searchDb);searchDb=setTimeout(fetchCareers,260);}
+async function fetchCareers(){
+  const q=document.getElementById('srch').value.trim();
+  const list=document.getElementById('career-list');
+  if(q.length<2&&activeSector==='All'){list.innerHTML=`<div style="text-align:center;padding:26px;color:var(--mut);font-size:13px">Search a career or select a sector above</div>`;document.getElementById('srch-count').textContent='';return;}
+  list.innerHTML=Array(4).fill(`<div class="skel" style="height:50px;border-radius:9px"></div>`).join('');
+  const p=new URLSearchParams({limit:40});if(q.length>=2)p.set('q',q);if(activeSector!=='All')p.set('sector',activeSector);
+  const data=await api('/api/careers?'+p);
+  if(!data){list.innerHTML=`<div style="text-align:center;padding:26px;color:var(--mut)">Server offline. <a href="#" onclick="fetchCareers()" style="color:var(--red)">Retry</a></div>`;return;}
+  document.getElementById('srch-count').textContent=data.total>0?`${data.total} careers`:'';
+  if(!data.careers.length){list.innerHTML=`<div style="text-align:center;padding:26px;color:var(--mut);font-size:13px">No careers found</div>`;return;}
+  const COL={danger:'#E74C3C',warning:'#F39C12',safe:'#27AE60'};
+  list.innerHTML='';
+  data.careers.forEach((c,i)=>{
+    const row=document.createElement('div');row.className='career-row';row.style.animation=`fadeUp ${.04+i*.022}s ease both`;
+    row.innerHTML=`<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:500">${c.title}</div><div style="font-size:11px;color:var(--mut);margin-top:1px">${c.sector}${c.sub?` · ${c.sub}`:''}</div></div>
+    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+      ${c.is_technical?`<div style="font-size:9px;color:var(--blu);background:rgba(52,152,219,.1);border:1px solid rgba(52,152,219,.2);padding:2px 6px;border-radius:9px;font-weight:500">TECH</div>`:''}
+      <div style="text-align:right"><div style="font-family:var(--fd);font-size:16px;font-weight:700;color:${COL[c.risk_color]}">${c.risk}%</div><div style="font-size:9px;color:var(--mut)">${c.risk_color==='danger'?'High':c.risk_color==='warning'?'Medium':'Low'}</div></div>
+    </div>`;
+    row.onclick=()=>{document.querySelectorAll('.career-row').forEach(r=>r.classList.remove('sel'));row.classList.add('sel');G.career=c;document.getElementById('s0-btn').disabled=false;};
+    list.appendChild(row);
+  });
+}
+
+// ─── S1: MAP — THE PERSONALITY TRIAL ─────────────────────────────────────────
+let mapData=null,mapCp=0,mapQi=0,mapSel=null,mapScores=[],mapDone=[false,false,false],mapAnim=false;
+const MAP_PATHS=[
+  [{x:58,y:158},{x:102,y:158},{x:145,y:125},{x:183,y:103},{x:220,y:88}],
+  [{x:220,y:88},{x:265,y:88},{x:305,y:115},{x:348,y:140},{x:388,y:152}],
+  [{x:388,y:152},{x:430,y:152},{x:470,y:118},{x:514,y:92},{x:555,y:76}],
+];
+
+function pnlShow(state){
+  document.getElementById('pnl-idle').style.display   = state==='idle'   ? 'flex'  : 'none';
+  document.getElementById('pnl-q').style.display      = state==='q'      ? 'block' : 'none';
+  document.getElementById('pnl-reveal').style.display = state==='reveal'  ? 'block' : 'none';
+}
+function pnlLight(on){
+  const p=document.getElementById('map-panel');
+  p.classList.toggle('lit',on);p.classList.toggle('dim',!on);
+}
+
+async function initMap(){
+  if(!G.career){goTo(0);return;}
+  mapData=null;mapCp=0;mapQi=0;mapSel=null;mapScores=[];mapDone=[false,false,false];mapAnim=false;
+  document.getElementById('map-title').textContent=`${G.career.title} — Career Map`;
+  document.getElementById('map-hpfill').style.width='0%';
+  document.getElementById('map-hpnum').textContent='0 / 100';
+  document.getElementById('map-hint').textContent='';
+  document.getElementById('mtrav').setAttribute('cx',58);document.getElementById('mtrav').setAttribute('cy',158);
+  pnlShow('idle');pnlLight(false);
+  // Reset checkpoints
+  [1,2,3].forEach(i=>{
+    const g=document.getElementById('mcp'+i+'g'),c=document.getElementById('mcp'+i+'c');
+    document.getElementById('mseg'+(i-1)).setAttribute('opacity','0');
+    if(i===1){g.style.cursor='pointer';g.style.opacity='1';c.setAttribute('fill','#534AB7');c.setAttribute('stroke','#3C3489');document.getElementById('mcp'+i+'l').setAttribute('fill','rgba(83,74,183,.82)');}
+    else{g.style.cursor='not-allowed';g.style.opacity='.34';c.setAttribute('fill','rgba(255,255,255,.07)');c.setAttribute('stroke','rgba(255,255,255,.14)');document.getElementById('mcp'+i+'l').setAttribute('fill','rgba(255,255,255,.2)');}
+  });
+  // Load sector-specific questions from API
+  const d=await api(`/api/careers/${G.career.id}/map-questions`);
+  mapData=d||mapFallback();
+  // Show email modal if we haven't asked yet this session
+  if(!_mapEmailShown){
+    _mapEmailShown=true;
+    setTimeout(()=>showEmailModal(),400);
+  } else {
+    setTimeout(()=>mapActivate(0),400);
+  }
+}
+
+function mapFallback(){return{checkpoints:[
+  {zone:"Checkpoint 1 — Skills",qs:[
+    {t:"How much of your daily work involves tasks that follow the same steps every time?",opts:["Almost all of it","About half","A small part","Every day is different"],sc:[5,12,18,25]},
+    {t:"How often do you make judgment calls that require reading people or context?",opts:["Never — I follow set rules","Occasionally","Often","It is the core of my job"],sc:[5,10,18,25]},
+    {t:"Which best describes the core skill your role depends on?",opts:["Data entry or processing","Technical or software skills","Communication & relationships","Creative or strategic thinking"],sc:[5,12,18,22]},
+  ]},
+  {zone:"Checkpoint 2 — Work style",qs:[
+    {t:"How much of your work happens in unpredictable or physical environments?",opts:["Fixed desk or screen","Mostly office, some variety","Mixed — field and office","Mostly outdoors or on-site"],sc:[5,10,18,25]},
+    {t:"How often do you collaborate with others to solve complex problems?",opts:["I work alone most of the time","Occasionally in teams","Frequently with colleagues","Cross-team collaboration is my main output"],sc:[5,10,18,25]},
+    {t:"How much does your role depend on building trust with people?",opts:["Not at all","A little","Quite a lot","It is essential — relationships are my job"],sc:[5,10,18,25]},
+  ]},
+  {zone:"Checkpoint 3 — Future",qs:[
+    {t:"How comfortable are you learning new tools or technologies for your job?",opts:["I avoid it if I can","I manage when required","I pick them up fairly easily","I actively seek new tools"],sc:[5,10,18,25]},
+    {t:"Has your role changed significantly in the last 3 years?",opts:["No — same as always","Minor changes","Moderate changes","Almost unrecognisable"],sc:[5,10,18,25]},
+    {t:"How aware are you of how AI is affecting your industry?",opts:["Have not thought about it","Heard about it vaguely","I follow developments","I actively track AI in my field"],sc:[5,12,20,25]},
+  ]},
+]};}
+
+function mapTryOpen(i){
+  if(mapAnim)return;
+  if(!mapData){
+    // Data still loading — show hint and retry once ready
+    document.getElementById('map-hint').textContent='Loading questions...';
+    const wait=setInterval(()=>{if(mapData){clearInterval(wait);mapTryOpen(i);}},100);
+    return;
+  }
+  if(i===0&&!mapDone[0]){mapActivate(0);return;}
+  if(i>0&&mapDone[i-1]&&!mapDone[i]){mapActivate(i);return;}
+  if(mapDone[i])document.getElementById('map-hint').textContent='Checkpoint '+(i+1)+' already complete!';
+}
+
+function mapActivate(i){
+  if(G.currentScreen!==1)return;
+  mapCp=i;mapQi=0;mapSel=null;
+  pnlShow('q');pnlLight(true);
+  document.getElementById('map-hint').textContent='';
+  mapRenderQ();
+}
+
+function mapRenderQ(){
+  const cp=mapData.checkpoints[mapCp],q=cp.qs[mapQi];
+
+  // Zone label + dots
+  document.getElementById('pnl-zone').textContent=cp.zone;
+  const dots=document.getElementById('pnl-dots');dots.innerHTML='';
+  for(let i=0;i<3;i++){
+    const d=document.createElement('div');
+    d.style.cssText=`width:7px;height:7px;border-radius:50%;background:${i<mapQi?'#1D9E75':i===mapQi?'var(--red)':'var(--bdr)'};transition:background .25s`;
+    dots.appendChild(d);
+  }
+  document.getElementById('pnl-counter').textContent=`Question ${mapQi+1} of 3`;
+
+  // Question text — show immediately
+  document.getElementById('pnl-q-text').textContent=q.t;
+
+  // Reset next button
+  const btn=document.getElementById('pnl-next');
+  btn.disabled=true;btn.style.opacity='.35';mapSel=null;
+  btn.textContent=(mapCp===2&&mapQi===2)?'Reveal champion →':'Next →';
+
+  // Render answer options immediately
+  const opts=document.getElementById('pnl-opts');
+  opts.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='mopt';
+    b.textContent=o;
+    b.onclick=()=>{
+      if(mapSel!==null)return; // prevent double-tap
+      mapSel=i;
+      opts.querySelectorAll('button').forEach((x,j)=>x.classList.toggle('sel',j===i));
+      btn.disabled=false;
+      btn.style.opacity='1';
+      const hint=document.getElementById('pnl-next-hint');
+      if(hint)hint.style.opacity='1';
+      // Auto-advance after 650ms — feels dynamic, gives user time to see selection
+      setTimeout(()=>{if(hint)hint.style.opacity='0';mapAdvance();},650);
+    };
+    opts.appendChild(b);
+  });
+  // Fade in options
+  opts.style.opacity='0';
+  requestAnimationFrame(()=>gsap.to(opts,{opacity:1,y:0,duration:.28,ease:'power2.out'}));
+}
+function mapAdvance(){
+  if(mapSel===null)return;
+  mapScores.push(mapData.checkpoints[mapCp].qs[mapQi].sc[mapSel]);
+  mapUpdateHP();
+  if(mapQi<2){
+    mapQi++;
+    // Slide out current, slide in next
+    const panel=document.getElementById('pnl-q');
+    gsap.to(panel,{opacity:0,x:-12,duration:.18,onComplete:()=>{
+      gsap.fromTo(panel,{x:14},{x:0,opacity:1,duration:.22});
+      mapRenderQ();
+    }});
+  } else {
+    mapCloseCp();
+  }
+}
+function mapCloseCp(){
+  mapDone[mapCp]=true;mapMarkDone(mapCp);
+  const completedCp=mapCp;
+  mapAnimTrav(completedCp,()=>{
+    if(completedCp<2){
+      mapUnlockNext(completedCp+1);
+      document.getElementById('map-hint').textContent='Checkpoint '+(completedCp+2)+' unlocked — continuing...';
+      // Auto-advance to next checkpoint after a brief pause
+      setTimeout(()=>{
+        pnlShow('idle');pnlLight(false);
+        setTimeout(()=>mapActivate(completedCp+1),500);
+      },600);
+    } else {
+      pnlShow('idle');pnlLight(false);
+      mapRevealAvatar();
+    }
+  });
+}
+function mapMarkDone(i){
+  document.getElementById('mcp'+(i+1)+'c').setAttribute('fill','#1D9E75');
+  document.getElementById('mcp'+(i+1)+'c').setAttribute('stroke','#0F6E56');
+  document.getElementById('mcp'+(i+1)+'g').style.cursor='default';
+  document.getElementById('mcp'+(i+1)+'l').setAttribute('fill','rgba(29,158,117,.8)');
+  document.getElementById('mseg'+i).setAttribute('opacity','1');
+}
+function mapUnlockNext(i){
+  const g=document.getElementById('mcp'+i+'g'),c=document.getElementById('mcp'+i+'c');
+  g.style.cursor='pointer';g.style.opacity='1';c.setAttribute('fill','#534AB7');c.setAttribute('stroke','#3C3489');
+  document.getElementById('mcp'+i+'l').setAttribute('fill','rgba(83,74,183,.82)');
+}
+function mapAnimTrav(seg,cb){
+  mapAnim=true;const pts=MAP_PATHS[seg];let step=0;const tv=document.getElementById('mtrav');
+  const iv=setInterval(()=>{if(step>=pts.length){clearInterval(iv);mapAnim=false;cb();return;}tv.setAttribute('cx',pts[step].x);tv.setAttribute('cy',pts[step].y);step++;},110);
+}
+function mapUpdateHP(){
+  // Dynamically calculate max possible from the actual questions answered so far
+  let maxPossible=0;
+  mapScores.forEach((_,qi)=>{
+    const cp=Math.floor(qi/3),qIdx=qi%3;
+    const q=mapData?.checkpoints?.[cp]?.qs?.[qIdx];
+    if(q)maxPossible+=Math.max(...q.sc);
+  });
+  const total=mapScores.reduce((a,b)=>a+b,0);
+  const pct=maxPossible>0?Math.min(100,Math.round((total/maxPossible)*100)):0;
+  G.mapHP=pct;
+  document.getElementById('map-hpfill').style.width=pct+'%';
+  document.getElementById('map-hpfill').style.background=pct>=60?'var(--grn)':pct>=35?'var(--amb)':'var(--red)';
+  document.getElementById('map-hpnum').textContent=pct+' / 100';
+}
+function mapRevealAvatar(){
+  // Derive avatar from map HP + score patterns
+  const hp=G.mapHP;
+  const humanScore=mapScores.filter((_,i)=>i%3===1).reduce((a,b)=>a+b,0);
+  const futureScore=mapScores.slice(6).reduce((a,b)=>a+b,0);
+  let idx=hp>=80?0:hp>=65?3:hp>=50?1:humanScore>=30?4:futureScore>=20?2:5;
+  G.avatar=AVATARS[idx];
+  pnlShow('reveal');pnlLight(true);
+  const icon=document.getElementById('pnl-av-icon');
+  icon.style.borderColor=G.avatar.c;icon.style.color=G.avatar.c;icon.innerHTML=SVGS[G.avatar.id];
+  document.getElementById('pnl-av-name').textContent=G.avatar.name;
+  document.getElementById('pnl-av-cls').textContent=G.avatar.cls;
+  document.getElementById('pnl-av-cls').style.color=G.avatar.c;
+  document.getElementById('pnl-av-hp').textContent=`Career HP: ${hp}/100 — ${hp>=60?'Strong human qualities. AI will augment you.':hp>=35?'Mixed exposure. Upskilling will protect you.':'High exposure. Your quest starts now.'}`;
+  document.getElementById('map-hint').textContent='';
+  flashScreen('rgba(255,255,255,.05)',600);
+  gsap.fromTo('#pnl-reveal',{opacity:0,y:10},{opacity:1,y:0,duration:.4});
+}
+
+// ─── S2: SELFIE ───────────────────────────────────────────────────────────────
+let camStream=null;
+function initSelfie(){
+  G.selfieUrl=null;
+  ['cam-controls','selfie-controls','selfie-done'].forEach(id=>document.getElementById(id).style.display=id==='cam-controls'?'flex':'none');
+  document.getElementById('cam-preview').style.display='none';document.getElementById('selfie-img').style.display='none';document.getElementById('cam-placeholder').style.display='block';
+}
+function startCamera(){
+  if(!navigator.mediaDevices?.getUserMedia){skipSelfie();return;}
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false}).then(stream=>{
+    camStream=stream;const v=document.getElementById('cam-preview');v.srcObject=stream;v.play();v.style.display='block';
+    document.getElementById('cam-placeholder').style.display='none';document.getElementById('cam-controls').style.display='none';document.getElementById('selfie-controls').style.display='flex';
+  }).catch(()=>skipSelfie());
+}
+function captureSelfie(){
+  const v=document.getElementById('cam-preview'),c=document.getElementById('cam-canvas'),ctx=c.getContext('2d');
+  ctx.save();ctx.translate(c.width,0);ctx.scale(-1,1);ctx.drawImage(v,0,0,c.width,c.height);ctx.restore();
+  G.selfieUrl=c.toDataURL('image/jpeg',.85);
+  const img=document.getElementById('selfie-img');img.src=G.selfieUrl;img.style.display='block';
+  v.style.display='none';if(camStream)camStream.getTracks().forEach(t=>t.stop());
+  document.getElementById('selfie-controls').style.display='none';document.getElementById('selfie-done').style.display='flex';
+}
+function retakeSelfie(){document.getElementById('selfie-img').style.display='none';document.getElementById('selfie-done').style.display='none';document.getElementById('cam-controls').style.display='flex';document.getElementById('cam-placeholder').style.display='block';G.selfieUrl=null;}
+function skipSelfie(){if(camStream)camStream.getTracks().forEach(t=>t.stop());goTo(3);}
+
+// ─── S3: TERMINAL ─────────────────────────────────────────────────────────────
+function initTerminal(){
+  if(!G.career){goTo(0);return;}
+  const term=document.getElementById('terminal');term.innerHTML='<span class="term-cursor"></span>';
+  document.getElementById('scan-title').textContent=G.career.title;
+  document.getElementById('scan-bar').style.width='0%';document.getElementById('scan-pct').textContent='0%';
+  let lc=0;const TOTAL=16;
+  const es=new EventSource(`${API}/api/scan/${G.career.id}`);
+  es.onmessage=e=>{
+    const m=JSON.parse(e.data);
+    if(m.type==='line'){const d=document.createElement('div');d.className=m.cls||'';d.textContent=m.text;d.style.animation='fadeUp .12s ease both';term.insertBefore(d,term.querySelector('.term-cursor'));term.scrollTop=term.scrollHeight;lc++;const p=Math.min(Math.round(lc/TOTAL*100),95);document.getElementById('scan-bar').style.width=p+'%';document.getElementById('scan-pct').textContent=p+'%';}
+    if(m.type==='done'){es.close();setHP(100-(m.risk||50));document.getElementById('scan-bar').style.width='100%';document.getElementById('scan-pct').textContent='100%';setTimeout(()=>goTo(4),700);}
+  };
+  es.onerror=()=>{es.close();fallbackTerminal();};
+}
+function fallbackTerminal(){
+  const r=G.career.risk||50,term=document.getElementById('terminal');setHP(100-r);
+  const ll=[{t:`> KNBS data loaded — ${G.career.title}`,cls:''},{t:`> Workforce: ${(G.career.workforce||0).toLocaleString()} workers`,cls:'dim'},{t:`> Routine tasks: ${Math.round(r*.55)}% automatable`,cls:'dim'},{t:`> Human-critical tasks: ${Math.round(100-r*.85)}%`,cls:'dim'},{t:`> ANALYSIS COMPLETE.`,cls:'bright'},{t:`> Automation risk: ${r}%`,cls:'bright'},{t:`> Proceeding to verdict...`,cls:'red'}];
+  let i=0;function next(){if(i>=ll.length){setTimeout(()=>goTo(4),600);return;}const d=document.createElement('div');d.className=ll[i].cls||'';d.textContent=ll[i].t;d.style.animation='fadeUp .12s ease both';term.insertBefore(d,term.querySelector('.term-cursor'));term.scrollTop=term.scrollHeight;i++;document.getElementById('scan-bar').style.width=Math.round(i/ll.length*100)+'%';setTimeout(next,300);}
+  setTimeout(next,300);
+}
+
+// ─── S4: SLOT ─────────────────────────────────────────────────────────────────
+function initSlot(){
+  if(!G.career){goTo(0);return;}
+  const r=G.career.risk||50,level=r>=86?'CRITICAL':r>=66?'HIGH':r>=36?'MEDIUM':'LOW',status=r>=66?'AT RISK':r>=36?'ADAPTING':'RESILIENT',col=r>=66?'#E74C3C':r>=36?'#F39C12':'#27AE60';
+  document.getElementById('verdict-result').style.display='none';
+  ['lock0','lock1','lock2'].forEach(id=>{const l=document.getElementById(id);l.style.background='var(--bdr)';l.style.boxShadow='none';});
+  function bldDrum(id,items,fi){const d=document.getElementById(id);let all=[];for(let i=0;i<10;i++)all.push(...items);all.push(items[fi]);d.innerHTML=all.map(v=>`<div class="slot-item">${v}</div>`).join('');d.style.transform='translateY(0)';d.style.transition='none';}
+  const LV=['CRITICAL','HIGH','MEDIUM','LOW'],SC=[92,88,82,79,74,68,62,55,48,45,38,28,22,r],ST=['CRITICAL','AT RISK','EXPOSED','ADAPTING','GROWING','RESILIENT'];
+  const li=LV.indexOf(level)>=0?LV.indexOf(level):0,ri=(()=>{const i=SC.indexOf(r);return i>=0?i:SC.length-1;})(),si=ST.indexOf(status)>=0?ST.indexOf(status):0;
+  bldDrum('drum0',LV,li);bldDrum('drum1',SC.map(String),ri);bldDrum('drum2',ST,si);
+  function spin(id,lockId,delay,lc){setTimeout(()=>{const d=document.getElementById(id);d.style.transition=`transform ${2+delay*.35}s cubic-bezier(.12,.88,.22,1)`;d.style.transform=`translateY(${-((d.children.length-1)*88)}px)`;setTimeout(()=>{const l=document.getElementById(lockId);l.style.background=lc;l.style.boxShadow=`0 0 8px ${lc}55`;if(lc!=='#27AE60')flashScreen('rgba(231,76,60,.1)',300);},(2+delay*.35)*1000+50);},(delay*600)+200);}
+  spin('drum0','lock0',0,col);spin('drum1','lock1',1,col);spin('drum2','lock2',2,col);
+  setTimeout(()=>{
+    const desc=r>=86?`Overwhelming threat — ${r}% automatable. The comeback arc starts now.`:r>=66?`Significant threat at ${r}%. AI is reshaping this role across Kenya.`:r>=36?`Moderate threat at ${r}%. Adapt and accelerate.`:`Strong position — only ${r}% risk. Human skills lead.`;
+    document.getElementById('verdict-desc').textContent=desc;document.getElementById('verdict-result').style.display='block';gsap.fromTo('#verdict-result',{opacity:0,y:8},{opacity:1,y:0,duration:.45});
+  },(3*600+(2+2*.35)*1000+200)+600);
+}
+
+// ─── S5: ROUND 1 ──────────────────────────────────────────────────────────────
+// ── HP helpers — pool always sums to 100 ─────────────────────────────────────
+function setHP(newPlayerHP){
+  G.playerHP=Math.min(100,Math.max(0,Math.round(newPlayerHP)));
+  G.algoHP=100-G.playerHP;
+}
+function updateHPBars(phpId,pnumId,ahpId,anumId){
+  const p=G.playerHP,a=G.algoHP;
+  const pEl=document.getElementById(phpId),aEl=document.getElementById(ahpId);
+  if(pEl){pEl.style.width=p+'%';pEl.style.background=p>60?'var(--grn)':p>30?'var(--amb)':'var(--red)';}
+  if(document.getElementById(pnumId))document.getElementById(pnumId).textContent=p+' HP';
+  if(aEl){aEl.style.width=a+'%';aEl.style.background='var(--red)';}
+  if(document.getElementById(anumId))document.getElementById(anumId).textContent=a+' HP';
+}
+
+async function initRound1(){
+  if(!G.career){goTo(0);return;}
+  // Pool = 100: player starts at resilience side, algo at risk side
+  setHP(100-(G.career.risk||50));
+  const td=await api(`/api/careers/${G.career.id}/threats`);
+  G.threats=td?.threats||[{title:"AI process automation",body:"n8n and Zapier chain complex tasks — replacing routine knowledge work across all sectors.",damage:24},{title:"AI document processing",body:"LLMs read, summarise, and action documents at human speed — shrinking admin roles.",damage:20},{title:"Generative AI task completion",body:"Claude and GPT-4 handle drafting, analysis, research — shifting value to judgment.",damage:18}];
+  ['r1-phA','r1-phB','r1-phC'].forEach((id,i)=>document.getElementById(id).style.display=i===0?'block':'none');
+  document.getElementById('r1-readbtn').style.display='none';document.getElementById('r1-msg').textContent='Scanning threat vectors...';
+  document.getElementById('r1-avname').textContent=G.avatar?.name||'You';
+  updateHPBars('r1-php','r1-phnum','r1-ahp','r1-ahnum');
+  ['tc0','tc1','tc2'].forEach(id=>{const el=document.getElementById(id);el.className='threat-card';el.innerHTML='';});
+  setTimeout(()=>{document.getElementById('mini-fighters').style.opacity='1';},300);
+  gsap.fromTo('#r1-algobody',{scale:.6,opacity:0},{scale:1,opacity:1,duration:.6,ease:'back.out(1.8)',delay:.4});
+  const msgs=['Scanning threat vectors...','Cross-referencing task automation data...','Identifying vulnerability points...','Threat assessment complete.'];
+  let step=0;const iv=setInterval(()=>{step++;if(step<msgs.length)document.getElementById('r1-msg').textContent=msgs[step];if(step===1)revealTC(0);if(step===2)revealTC(1);if(step===3){revealTC(2);clearInterval(iv);setTimeout(()=>{document.getElementById('r1-readbtn').style.display='inline-flex';gsap.fromTo('#r1-readbtn',{opacity:0,y:8},{opacity:1,y:0,duration:.4});},800);}},1200);
+}
+function revealTC(i){
+  const t=G.threats[i];if(!t)return;
+  const el=document.getElementById('tc'+i);
+  el.innerHTML=`<div class="threat-num">Threat 0${i+1}</div><div class="threat-title">${t.title}</div><div class="threat-body">${t.body}</div><div class="threat-dmg"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>−${t.damage} HP</div>`;
+  el.offsetHeight;el.classList.add('show');
+}
+function showBrace(){
+  document.getElementById('r1-phA').style.display='none';document.getElementById('r1-phB').style.display='block';
+  gsap.fromTo('#r1-phB',{opacity:0,y:8},{opacity:1,y:0,duration:.35});
+  document.getElementById('r1-sub').textContent='The Algorithm is ready — brace yourself';
+  gsap.to('#r1-algobody',{scale:1.12,repeat:-1,yoyo:true,duration:1.1,ease:'sine.inOut'});
+}
+function executeAttack(){
+  gsap.killTweensOf('#r1-algobody');document.getElementById('r1-phB').style.display='none';
+  gsap.to('#r1-algobody',{x:-76,duration:.2,ease:'power3.in',onComplete:()=>gsap.to('#r1-algobody',{x:0,duration:.4,ease:'elastic.out(1,.5)'})});
+  setTimeout(()=>{shakeScreen();flashScreen('rgba(231,76,60,.22)',500);gsap.fromTo('#r1-playerbody',{x:0},{x:26,duration:.1,yoyo:true,repeat:3,ease:'power2.inOut'});},180);
+  let delay=350;
+  G.threats.forEach((t,i)=>{
+    setTimeout(()=>{
+      // Damage transfers from player to algo — pool stays at 100
+      setHP(G.playerHP-t.damage);
+      updateHPBars('r1-php','r1-phnum','r1-ahp','r1-ahnum');
+      const tc=document.getElementById('tc'+i),d=document.createElement('div');d.className='dmg-float';d.textContent='−'+t.damage;d.style.cssText='color:var(--red);top:-10px;left:50%;transform:translateX(-50%)';tc.style.position='relative';tc.appendChild(d);setTimeout(()=>d.remove(),920);
+      tc.classList.add('hit');setTimeout(()=>tc.classList.remove('hit'),420);
+    },delay+i*420);
+  });
+  setTimeout(()=>{
+    document.getElementById('r1-phC').style.display='block';gsap.fromTo('#r1-phC',{opacity:0,y:8},{opacity:1,y:0,duration:.35});
+    const hp=G.playerHP;document.getElementById('r1-result').textContent=hp>=60?`Absorbed — ${hp} HP remaining. Still fighting.`:hp>=30?`Heavy damage — ${hp} HP left. Counter now.`:`Critical — ${hp} HP. Dire. The fight isn't over.`;
+    document.getElementById('r1-sub').textContent='Now fight back with your skills';G.xp+=100;
+  },delay+G.threats.length*420+500);
+}
+
+// ─── S6: SKILL CARD COMBAT ────────────────────────────────────────────────────
+let s6Session=null,s6DragState=null,s6BackendInitPlayer=100,s6BackendInitAlgo=100;
+async function initSkillCombat(){
+  if(!G.career||!G.avatar){goTo(0);return;}
+  document.getElementById('s6-avname').textContent=G.avatar.name;
+  document.getElementById('s6-log').textContent='Session starting...';
+  document.getElementById('s6-done').style.display='none';
+  const session=await gameApi('/api/game/start',{career:G.career.id,avatar:G.avatar.id});
+  if(!session){document.getElementById('s6-log').textContent='Combat engine offline. Start port 8001.';return;}
+  s6Session=session;G.combatSessionId=session.session_id;
+  // Record backend's initial values so we can track deltas
+  s6BackendInitPlayer=session.player_hp;
+  s6BackendInitAlgo=session.ai_hp;
+  // HP carries over from Round 1 — pool is already correct (sums to 100)
+  updateHPBars('s6-php','s6-phnum','s6-ahp','s6-ahnum');
+  document.getElementById('s6-cards-left').textContent=session.cards.length;
+  document.getElementById('s6-log').textContent=`${session.career.label} — ${session.avatar.label} — ${session.cards.length} cards`;
+  renderHand(session.cards);
+}
+function renderHand(cards){
+  const hand=document.getElementById('s6-hand');hand.innerHTML='';
+  cards.forEach((card,i)=>{
+    const total=cards.length,angle=(i-(total-1)/2)*5.5,lift=Math.abs(i-(total-1)/2)*5,xOff=(i-(total-1)/2)*84;
+    const el=document.createElement('div');
+    el.style.cssText=`position:absolute;bottom:8px;left:50%;width:115px;height:160px;cursor:pointer;
+      transform:translateX(calc(-50% + ${xOff}px)) rotate(${angle}deg) translateY(${lift}px);
+      transform-origin:bottom center;border-radius:10px;pointer-events:all;user-select:none;
+      z-index:${10-Math.abs(i-(total-1)/2)};animation:slideIn ${.06+i*.05}s ease both`;
+    let flipped=false;
+    el.innerHTML=`<div style="position:absolute;inset:0;border-radius:10px;backface-visibility:hidden;
+      background:linear-gradient(140deg,#140820,#0a0e1a);border:1px solid ${card.color}44;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px">
+      <svg width="34" height="34" viewBox="0 0 32 32" fill="none" opacity=".35"><polygon points="16,2 28,9 28,23 16,30 4,23 4,9" stroke="${card.color}" stroke-width="1.5"/><circle cx="16" cy="16" r="4" fill="${card.color}" opacity=".3"/></svg>
+      <div style="font-size:8px;color:${card.color};letter-spacing:.08em;text-transform:uppercase;margin-top:7px">Tap to flip</div>
+    </div>`;
+    el.addEventListener('click',()=>{
+      if(s6DragState?.moved)return;
+      if(!flipped){flipped=true;el.style.zIndex=50;
+        el.innerHTML=`<div style="position:absolute;inset:0;border-radius:10px;background:linear-gradient(140deg,#0a160a,#0a0e1a);border:1px solid ${card.color}66;display:flex;flex-direction:column;justify-content:space-between;padding:11px">
+          <div><div style="font-size:8px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:${card.color};margin-bottom:4px">${card.type_label}</div>
+          <div style="font-family:var(--fd);font-size:11px;font-weight:600;color:#fff;line-height:1.32">${card.name}</div></div>
+          <div style="font-size:9px;color:var(--mut);line-height:1.4;font-style:italic">${card.flavour}</div>
+          <div style="font-family:var(--fd);font-size:17px;font-weight:700;color:${card.color}">${card.power}</div>
+        </div>`;
+      }
+    });
+    setupDrag(el,card,i,xOff,angle,lift,cards.length);
+    hand.appendChild(el);
+  });
+}
+function setupDrag(el,card,idx,homeX,homeAngle,homeLift,total){
+  let sx,sy,moved=false;
+  el.addEventListener('pointerdown',e=>{
+    if(!el.querySelector('div[style*="0a160a"]'))return;
+    e.preventDefault();moved=false;sx=e.clientX;sy=e.clientY;el.style.transition='none';el.style.zIndex='200';el.setPointerCapture(e.pointerId);s6DragState={el,moved};
+  });
+  el.addEventListener('pointermove',e=>{
+    if(!s6DragState||s6DragState.el!==el)return;
+    const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)>5||Math.abs(dy)>5)moved=s6DragState.moved=true;
+    if(!moved)return;
+    const arena=document.getElementById('s6-arena').getBoundingClientRect();
+    el.style.transform=`translate(${e.clientX-arena.left-57}px,${e.clientY-arena.top-80}px) rotate(${dx*.04}deg)`;
+    const atk=document.getElementById('zone-atk'),gap=document.getElementById('zone-gap');
+    const oa=isOver(e.clientX,e.clientY,atk),og=isOver(e.clientX,e.clientY,gap);
+    atk.style.borderColor=oa?'rgba(39,174,96,.8)':'rgba(39,174,96,.33)';atk.style.background=oa?'rgba(39,174,96,.1)':'rgba(39,174,96,.04)';
+    gap.style.borderColor=og?'rgba(52,152,219,.8)':'rgba(52,152,219,.33)';gap.style.background=og?'rgba(52,152,219,.1)':'rgba(52,152,219,.04)';
+  });
+  el.addEventListener('pointerup',e=>{
+    if(!s6DragState||s6DragState.el!==el)return;el.releasePointerCapture(e.pointerId);
+    const atk=document.getElementById('zone-atk'),gap=document.getElementById('zone-gap');
+    const wasAtk=isOver(e.clientX,e.clientY,atk),wasGap=isOver(e.clientX,e.clientY,gap);
+    atk.style.borderColor='rgba(39,174,96,.33)';atk.style.background='rgba(39,174,96,.04)';
+    gap.style.borderColor='rgba(52,152,219,.33)';gap.style.background='rgba(52,152,219,.04)';
+    if(s6DragState.moved&&(wasAtk||wasGap))resolveCard(el,card,wasAtk);
+    else{el.style.transition='transform .3s ease';el.style.transform=`translateX(calc(-50% + ${homeX}px)) rotate(${homeAngle}deg) translateY(${homeLift}px)`;el.style.zIndex=10-Math.abs(idx-(total-1)/2);}
+    s6DragState=null;
+  });
+}
+function isOver(cx,cy,el){const r=el.getBoundingClientRect();return cx>=r.left&&cx<=r.right&&cy>=r.top&&cy<=r.bottom;}
+async function resolveCard(el,card,isAtk){
+  document.getElementById('s6-cards-left').textContent=Math.max(0,parseInt(document.getElementById('s6-cards-left').textContent)-1);
+  gsap.to(el,{opacity:0,scale:isAtk?1.15:.7,y:isAtk?-80:40,duration:.32,ease:'power2.out',onComplete:()=>el.remove()});
+  const res=await gameApi('/api/game/play-card',{session_id:G.combatSessionId,card_id:card.id,answer:isAtk?'have':'dont_have'});
+  if(!res)return;
+  // Compute backend deltas and apply to our 100-point zero-sum pool
+  const playerDelta=Math.round(res.player_hp-s6BackendInitPlayer);
+  const algoDelta=Math.round(res.ai_hp-s6BackendInitAlgo);
+  s6BackendInitPlayer=res.player_hp;
+  s6BackendInitAlgo=res.ai_hp;
+  // "I HAVE" (attack) → algo takes damage (player gains), "NOT YET" → player takes damage (algo gains)
+  if(isAtk){
+    // algo damage transfers to player
+    const dmg=Math.abs(algoDelta)||Math.round(card.power*.4)||3;
+    setHP(G.playerHP+dmg);
+  } else {
+    // player damage transfers to algo
+    const dmg=Math.abs(playerDelta)||Math.round(card.power*.2)||2;
+    setHP(G.playerHP-dmg);
+  }
+  G.xp+=res.xp_earned||0;G.skillGaps=res.skill_gaps||[];
+  updateHPBars('s6-php','s6-phnum','s6-ahp','s6-ahnum');
+  document.getElementById('s6-log').textContent=res.narrative;
+  if(res.status!=='ongoing'){setTimeout(()=>{const d=document.getElementById('s6-done');d.style.display='inline-flex';gsap.fromTo(d,{opacity:0,y:8},{opacity:1,y:0,duration:.38});},600);}
+}
+
+// ─── S7: AI WEAPONS ───────────────────────────────────────────────────────────
+async function goToWeapons(){goTo(7);}
+async function initWeapons(){
+  if(!G.combatSessionId){goTo(0);return;}
+  document.getElementById('s7-xp').textContent=G.xp.toLocaleString();
+  document.getElementById('s7-risk').textContent=(G.career?.risk||0)+'%';
+  document.getElementById('s7-gaps').textContent=G.skillGaps.length;
+  if(G.skillGaps.length){
+    const gl=document.getElementById('s7-gap-list');gl.style.display='block';
+    document.getElementById('s7-gap-tags').innerHTML=G.skillGaps.map(g=>`<span style="padding:3px 11px;border-radius:18px;font-size:11px;background:rgba(52,152,219,.1);color:var(--blu);border:1px solid rgba(52,152,219,.2)">${g}</span>`).join('');
+  }
+  const data=await gameApi('/api/game/equip-weapons',{session_id:G.combatSessionId,max_tools:8});
+  if(!data){document.getElementById('s7-weapons').innerHTML=`<div style="color:var(--mut);font-size:13px">Combat engine offline (port 8001).</div>`;return;}
+  document.getElementById('s7-headline').textContent=data.headline||'AI weapons unlocked';
+  G.weapons=data.weapons||[];
+  const CCOL={'AI Assistant':'#E74C3C','Automation':'#F39C12','Design & Content':'#9B59B6','Video & Voice':'#D4537E','Writing & Research':'#1D9E75','PAL Course':'#E74C3C'};
+  document.getElementById('s7-weapons').innerHTML=G.weapons.map((w,i)=>`
+    <div style="padding:13px;border-radius:10px;border:1px solid ${w.category==='PAL Course'?'rgba(231,76,60,.4)':'var(--bdr)'};background:${w.category==='PAL Course'?'var(--red-d)':'var(--sur)'};cursor:pointer;transition:all .2s;animation:fadeUp ${.06+i*.05}s ease both"
+      onmouseover="this.style.transform='translateY(-2px)';this.style.borderColor='${(CCOL[w.category]||'#E74C3C')}55'"
+      onmouseout="this.style.transform='none';this.style.borderColor='${w.category==='PAL Course'?'rgba(231,76,60,.4)':'var(--bdr)'}'">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:7px;margin-bottom:5px">
+        <div><div style="font-size:9px;color:${CCOL[w.category]||'#E74C3C'};font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px">${w.category}</div>
+        <div style="font-size:13px;font-weight:600;line-height:1.3">${w.name}</div></div>
+        <div style="background:rgba(243,156,18,.1);color:var(--amb);border:1px solid rgba(243,156,18,.2);border-radius:5px;padding:2px 7px;font-size:10px;font-weight:600;white-space:nowrap">+${w.xp}</div>
+      </div>
+      <div style="font-size:11px;color:var(--mut);line-height:1.5">${w.why}</div>
+    </div>`).join('');
+  if(G.career?.is_technical&&G.career?.roadmap_slug){
+    document.getElementById('s7-roadmap').style.display='block';
+    document.getElementById('s7-roadmap-text').textContent=`Recommended roadmap for ${G.career.title}`;
+    gsap.fromTo('#s7-roadmap',{opacity:0,y:6},{opacity:1,y:0,duration:.38});
+  }
+}
+function openRoadmap(){if(G.career?.roadmap_slug)window.open(`https://roadmap.sh/${G.career.roadmap_slug}`,'_blank');}
+// ─── EMAIL COLLECTION ─────────────────────────────────────────────────────────
+function showEmailModal(){
+  const m=document.getElementById('email-modal');
+  m.style.display='flex';
+  gsap.fromTo(m.firstElementChild,{opacity:0,y:16},{opacity:1,y:0,duration:.32,ease:'power2.out'});
+  setTimeout(()=>document.getElementById('email-input').focus(),350);
+}
+function submitEmail(){
+  const val=document.getElementById('email-input').value.trim();
+  const err=document.getElementById('email-err');
+  if(!val||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)){err.textContent='Please enter a valid email address.';return;}
+  err.textContent='';
+  G.userEmail=val;
+  // POST to backend (fire-and-forget — don't block the user)
+  fetch(API+'/api/email',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({email:val,career_id:G.career?.id||'',career_title:G.career?.title||'',risk_score:G.career?.risk||0,avatar_class:G.avatar?.cls||'',xp_total:G.xp||0})
+  }).catch(()=>{});
+  closeEmailModal(true);
+}
+function skipEmail(){G.userEmail=null;closeEmailModal(false);}
+function closeEmailModal(proceed){
+  const m=document.getElementById('email-modal');
+  gsap.to(m.firstElementChild,{opacity:0,y:-12,duration:.22,onComplete:()=>{m.style.display='none';if(proceed!==undefined)activateMapAfterEmail();}});
+}
+let _mapEmailShown=false;
+function activateMapAfterEmail(){
+  // open first checkpoint automatically
+  setTimeout(()=>mapActivate(0),300);
+}
+
+// ─── RISK CARD GENERATOR ──────────────────────────────────────────────────────
+function openCard(){
+  const modal=document.getElementById('card-modal');
+  modal.style.display='flex';
+  gsap.fromTo(modal,{opacity:0},{opacity:1,duration:.28});
+  renderRiskCard();
+}
+function closeCardModal(){
+  const modal=document.getElementById('card-modal');
+  gsap.to(modal,{opacity:0,duration:.2,onComplete:()=>modal.style.display='none'});
+}
+
+function renderRiskCard(){
+  const canvas=document.getElementById('risk-card-canvas');
+  const W=840,H=480;
+  canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+
+  const career=G.career||{title:'Unknown Career',risk:50,sector:'General'};
+  const avatar=G.avatar||{name:'The Explorer',cls:'Adventurer',c:'#E74C3C'};
+  const risk=career.risk||0;
+  const riskCol=risk>=66?'#E74C3C':risk>=36?'#F39C12':'#27AE60';
+  const riskLabel=risk>=66?'HIGH RISK':risk>=36?'MODERATE':'RESILIENT';
+
+  // ── Background ────────────────────────────────────────────────────────────
+  const bg=ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,'#07070f');
+  bg.addColorStop(.5,'#0c0617');
+  bg.addColorStop(1,'#070f0b');
+  ctx.fillStyle=bg;
+  ctx.roundRect(0,0,W,H,20);
+  ctx.fill();
+
+  // subtle noise texture overlay (crosshatch)
+  ctx.fillStyle='rgba(255,255,255,0.013)';
+  for(let y=0;y<H;y+=3){ctx.fillRect(0,y,W,1);}
+
+  // ── Red glow corner accent ────────────────────────────────────────────────
+  const glow=ctx.createRadialGradient(W,0,0,W,0,420);
+  glow.addColorStop(0,'rgba(231,76,60,.18)');
+  glow.addColorStop(1,'rgba(231,76,60,0)');
+  ctx.fillStyle=glow;
+  ctx.fillRect(0,0,W,H);
+
+  // ── Border ────────────────────────────────────────────────────────────────
+  ctx.strokeStyle='rgba(255,255,255,0.09)';
+  ctx.lineWidth=1;
+  ctx.roundRect(1,1,W-2,H-2,20);
+  ctx.stroke();
+
+  // red top accent line
+  ctx.strokeStyle=riskCol;
+  ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(40,2);ctx.lineTo(W-40,2);ctx.stroke();
+
+  // ── PAL branding (top-left) ───────────────────────────────────────────────
+  ctx.fillStyle='rgba(231,76,60,1)';
+  ctx.beginPath();ctx.arc(38,38,5,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.9)';
+  ctx.font='600 12px "Plus Jakarta Sans",system-ui';
+  ctx.fillText('Predictive Analytics Lab',52,43);
+
+  // ── "AI RISK CARD" badge (top-right) ─────────────────────────────────────
+  ctx.fillStyle='rgba(255,255,255,.06)';
+  roundRect(ctx,W-160,22,140,28,7);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.5)';
+  ctx.font='600 10px "Plus Jakarta Sans",system-ui';
+  ctx.letterSpacing='0.1em';
+  ctx.textAlign='right';
+  ctx.fillText('AI RISK CARD',W-28,41);
+  ctx.textAlign='left';
+  ctx.letterSpacing='0';
+
+  // ── Divider ───────────────────────────────────────────────────────────────
+  ctx.strokeStyle='rgba(255,255,255,.07)';
+  ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(32,68);ctx.lineTo(W-32,68);ctx.stroke();
+
+  // ── Career title ──────────────────────────────────────────────────────────
+  ctx.fillStyle='rgba(255,255,255,.38)';
+  ctx.font='500 12px "Plus Jakarta Sans",system-ui';
+  ctx.fillText(career.sector.toUpperCase(),36,100);
+
+  ctx.fillStyle='rgba(255,255,255,.95)';
+  ctx.font='700 36px "Plus Jakarta Sans",system-ui';
+  const titleText=career.title.length>28?career.title.slice(0,26)+'…':career.title;
+  ctx.fillText(titleText,36,144);
+
+  // ── Risk score (big) ──────────────────────────────────────────────────────
+  ctx.fillStyle=riskCol;
+  ctx.font='800 96px "Plus Jakarta Sans",system-ui';
+  ctx.fillText(risk+'%',36,258);
+
+  ctx.fillStyle=riskCol;
+  ctx.font='700 13px "Plus Jakarta Sans",system-ui';
+  ctx.fillText(riskLabel,38,282);
+
+  // ── Risk label underline ──────────────────────────────────────────────────
+  ctx.strokeStyle=riskCol;
+  ctx.lineWidth=2;
+  ctx.globalAlpha=.3;
+  ctx.beginPath();ctx.moveTo(36,290);ctx.lineTo(36+ctx.measureText(riskLabel).width+2,290);ctx.stroke();
+  ctx.globalAlpha=1;
+
+  // ── HP bar ────────────────────────────────────────────────────────────────
+  const barX=36,barY=308,barW=280,barH=6;
+  ctx.fillStyle='rgba(255,255,255,.07)';
+  roundRect(ctx,barX,barY,barW,barH,3);ctx.fill();
+  const hpPct=Math.max(0,Math.min(1,(100-risk)/100));
+  const hpCol=hpPct>.6?'#27AE60':hpPct>.35?'#F39C12':'#E74C3C';
+  ctx.fillStyle=hpCol;
+  roundRect(ctx,barX,barY,barW*hpPct,barH,3);ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,.35)';
+  ctx.font='500 10px "Plus Jakarta Sans",system-ui';
+  ctx.fillText('Career HP: '+(100-risk)+' / 100',barX,barY+22);
+
+  // ── Stats row ────────────────────────────────────────────────────────────
+  const statsY=358;
+  drawStat(ctx,36, statsY,'XP Earned',G.xp.toLocaleString(),'#F39C12');
+  drawStat(ctx,160,statsY,'Skill Gaps',G.skillGaps.length.toString(),'#3498DB');
+  drawStat(ctx,284,statsY,'Map HP',G.mapHP+'/100','#27AE60');
+
+  // ── Vertical divider ──────────────────────────────────────────────────────
+  ctx.strokeStyle='rgba(255,255,255,.07)';
+  ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(W/2+20,80);ctx.lineTo(W/2+20,H-36);ctx.stroke();
+
+  // ── Avatar panel (right half) ─────────────────────────────────────────────
+  const ax=W/2+52;
+  ctx.fillStyle='rgba(255,255,255,.3)';
+  ctx.font='600 10px "Plus Jakarta Sans",system-ui';
+  ctx.fillText('YOUR CHAMPION',ax,100);
+
+  // Avatar icon circle
+  const cr=56;
+  ctx.fillStyle=avatar.c+'22';
+  ctx.strokeStyle=avatar.c+'88';
+  ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(ax+cr,168,cr,0,Math.PI*2);ctx.fill();ctx.stroke();
+
+  // Draw avatar SVG paths as canvas shapes (simplified hexagon)
+  ctx.fillStyle=avatar.c;
+  ctx.globalAlpha=.7;
+  hexagon(ctx,ax+cr,168,28);ctx.fill();
+  ctx.globalAlpha=1;
+  ctx.fillStyle='rgba(0,0,0,.5)';
+  hexagon(ctx,ax+cr,168,16);ctx.fill();
+  ctx.fillStyle=avatar.c;
+  ctx.beginPath();ctx.arc(ax+cr,168,6,0,Math.PI*2);ctx.fill();
+
+  ctx.fillStyle='rgba(255,255,255,.95)';
+  ctx.font='700 22px "Plus Jakarta Sans",system-ui';
+  ctx.fillText(avatar.name,ax,258);
+
+  ctx.fillStyle=avatar.c;
+  ctx.font='600 12px "Plus Jakarta Sans",system-ui';
+  ctx.fillText(avatar.cls.toUpperCase(),ax,278);
+
+  // Avatar HP description
+  const hp=G.mapHP;
+  const desc=hp>=60?'Strong human qualities — AI will augment you.':hp>=35?'Mixed exposure — upskilling will protect you.':'High exposure — your quest starts now.';
+  ctx.fillStyle='rgba(255,255,255,.42)';
+  ctx.font='400 11px "Plus Jakarta Sans",system-ui';
+  wrapText(ctx,desc,ax,300,W-ax-36,17);
+
+  // Selfie / avatar image
+  if(G.selfieUrl){
+    const img=new Image();img.src=G.selfieUrl;
+    // draw when loaded (may already be cached)
+    const drawSelfie=()=>{
+      ctx.save();
+      ctx.beginPath();ctx.arc(ax+cr,168,cr-4,0,Math.PI*2);ctx.clip();
+      ctx.drawImage(img,ax+cr-(cr-4),168-(cr-4),(cr-4)*2,(cr-4)*2);
+      ctx.restore();
+    };
+    if(img.complete)drawSelfie();else img.onload=drawSelfie;
+  }
+
+  // Skill gaps list
+  if(G.skillGaps.length){
+    ctx.fillStyle='rgba(255,255,255,.28)';
+    ctx.font='500 10px "Plus Jakarta Sans",system-ui';
+    ctx.fillText('SKILL GAPS TO CLOSE',ax,338);
+    const tags=G.skillGaps.slice(0,3);
+    let tx=ax;
+    tags.forEach(g=>{
+      const tw=ctx.measureText(g).width+16;
+      ctx.fillStyle='rgba(52,152,219,.15)';
+      roundRect(ctx,tx,348,tw,20,5);ctx.fill();
+      ctx.strokeStyle='rgba(52,152,219,.3)';ctx.lineWidth=1;
+      roundRect(ctx,tx,348,tw,20,5);ctx.stroke();
+      ctx.fillStyle='rgba(52,152,219,.9)';
+      ctx.font='500 10px "Plus Jakarta Sans",system-ui';
+      ctx.fillText(g,tx+8,362);
+      tx+=tw+6;
+    });
+  }
+
+  // ── Footer ────────────────────────────────────────────────────────────────
+  ctx.strokeStyle='rgba(255,255,255,.06)';
+  ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(32,H-40);ctx.lineTo(W-32,H-40);ctx.stroke();
+
+  ctx.fillStyle='rgba(255,255,255,.22)';
+  ctx.font='400 10px "Plus Jakarta Sans",system-ui';
+  ctx.fillText('futureskills.predictiveanalyticslab.ai',36,H-18);
+
+  ctx.textAlign='right';
+  ctx.fillStyle='rgba(255,255,255,.22)';
+  ctx.fillText('Powered by Kenyan Labour Market Data • '+new Date().getFullYear(),W-36,H-18);
+  ctx.textAlign='left';
+}
+
+// Canvas helpers
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+function hexagon(ctx,cx,cy,r){ctx.beginPath();for(let i=0;i<6;i++){const a=Math.PI/180*(60*i-30);i===0?ctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):ctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));}ctx.closePath();}
+function wrapText(ctx,text,x,y,maxW,lh){const words=text.split(' ');let line='';words.forEach((w,i)=>{const test=line+(line?' ':'')+w;if(ctx.measureText(test).width>maxW&&i>0){ctx.fillText(line,x,y);line=w;y+=lh;}else line=test;});ctx.fillText(line,x,y);}
+function drawStat(ctx,x,y,label,val,col){
+  ctx.fillStyle=col;ctx.font='700 20px "Plus Jakarta Sans",system-ui';ctx.fillText(val,x,y);
+  ctx.fillStyle='rgba(255,255,255,.35)';ctx.font='400 10px "Plus Jakarta Sans",system-ui';ctx.fillText(label,x,y+16);
+}
+
+function downloadCard(){
+  const canvas=document.getElementById('risk-card-canvas');
+  const a=document.createElement('a');
+  a.download=`ai-risk-card-${(G.career?.title||'career').replace(/\s+/g,'-').toLowerCase()}.png`;
+  a.href=canvas.toDataURL('image/png');
+  a.click();
+}
+
+function shareCard(){
+  const canvas=document.getElementById('risk-card-canvas');
+  const status=document.getElementById('card-email-status');
+  // Try Web Share API first (mobile)
+  canvas.toBlob(blob=>{
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[new File([blob],'risk-card.png',{type:'image/png'})]})){
+      navigator.share({title:'My AI Risk Card',text:`I scored ${G.career?.risk||0}% AI risk as ${G.career?.title||'my career'}. Check yours!`,files:[new File([blob],'risk-card.png',{type:'image/png'})]})
+        .catch(()=>{});
+    } else {
+      // Fallback: copy link
+      const url=window.location.origin+window.location.pathname;
+      navigator.clipboard.writeText(url).then(()=>{status.textContent='Link copied to clipboard!';setTimeout(()=>status.textContent='',3000);}).catch(()=>{status.textContent='Share: '+url;});
+    }
+    // Also POST final stats to email endpoint so backend has full record
+    if(G.userEmail){
+      fetch(API+'/api/email',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({email:G.userEmail,career_id:G.career?.id||'',career_title:G.career?.title||'',risk_score:G.career?.risk||0,avatar_class:G.avatar?.cls||'',xp_total:G.xp||0})
+      }).then(()=>{status.textContent='Card sent to '+G.userEmail+'!';setTimeout(()=>status.textContent='',4000);}).catch(()=>{});
+    }
+  },'image/png');
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function shakeScreen(){const r=document.getElementById('shake-root');r.classList.add('shaking');setTimeout(()=>r.classList.remove('shaking'),500);}
+function flashScreen(color,ms){const f=document.getElementById('flash');f.style.background=color;gsap.fromTo(f,{opacity:1},{opacity:0,duration:ms/1000});}
+function restart(){
+  Object.assign(G,{career:null,avatar:null,selfieUrl:null,playerHP:50,algoHP:50,mapHP:0,threats:[],skills:[],xp:0,combatSessionId:null,skillGaps:[],weapons:[],userEmail:null});
+  _mapEmailShown=false;
+  document.querySelectorAll('.career-row').forEach(r=>r.classList.remove('sel'));document.getElementById('s0-btn').disabled=true;
+  const cur=document.getElementById('s'+G.currentScreen);if(cur)cur.classList.remove('on');
+  G.currentScreen=0;buildNav();const s0=document.getElementById('s0');s0.classList.add('on');gsap.fromTo(s0,{opacity:0,y:14},{opacity:1,y:0,duration:.38});
+}
+buildNav();
+</script>
+</body>
+</html>
