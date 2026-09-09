@@ -7,6 +7,23 @@ const CONSTRUCT_LABELS = {routine_intensity:"Repetitive work",physical_presence:
 const PHASES = ["Briefing", "Profile", "Identity", "Career map", "Scanning", "Battle", "Strategy"];
 const ROUTES = ["landing", "onboarding", "avatar", "assessment", "scan", "battle", "results", "error"];
 const state = {meta:null, credentials:null, profile:null, assessment:null, selectedCareer:null, editing:false, camera:null, scanTimer:null, battleIndex:0, retry:null};
+// crypto.randomUUID only exists in a secure context. The booth is served over plain
+// HTTP on a private IP, so fall back to getRandomValues (available everywhere) and then
+// to Math.random. Without this the first click throws and every button looks dead.
+function uuid(){
+  try{ if(typeof crypto!=="undefined"&&crypto.randomUUID) return uuid(); }catch{}
+  try{
+    if(typeof crypto!=="undefined"&&crypto.getRandomValues){
+      const bytes=crypto.getRandomValues(new Uint8Array(16));
+      bytes[6]=(bytes[6]&0x0f)|0x40;bytes[8]=(bytes[8]&0x3f)|0x80;
+      const hex=[...bytes].map(b=>b.toString(16).padStart(2,"0")).join("");
+      return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+    }
+  }catch{}
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{
+    const r=Math.random()*16|0;return (c==="x"?r:(r&0x3|0x8)).toString(16);
+  });
+}
 const $ = (selector, root=document) => root.querySelector(selector);
 const $$ = (selector, root=document) => [...root.querySelectorAll(selector)];
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -30,7 +47,7 @@ async function request(path, options={}){
 function announce(message){$("#live-region").textContent="";setTimeout(()=>$("#live-region").textContent=message,30);}
 function toast(message){const el=$("#toast");el.textContent=message;el.classList.add("show");clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove("show"),2800);}
 function track(event_name, properties={}){
-  const anonymous_id=state.credentials?.session_id||storedCredentials()?.session_id||crypto.randomUUID();
+  const anonymous_id=state.credentials?.session_id||storedCredentials()?.session_id||uuid();
   fetch(API+"/analytics",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({anonymous_id,event_name,properties})}).catch(()=>{});
 }
 function stopCamera(){if(state.camera){state.camera.getTracks().forEach(track=>track.stop());state.camera=null;}}
@@ -70,7 +87,7 @@ function navigate(name, push=true){
 }
 function fail(message,retry){state.retry=retry;$("#error-message").textContent=message;track("error",{screen:location.hash.slice(2)||"unknown",error_code:"request_failed"});navigate("error");}
 function setBusy(button,busy,label="Working…"){if(!button)return;button.disabled=busy;if(busy){button.dataset.label=button.textContent;button.textContent=label;}else if(button.dataset.label){button.textContent=button.dataset.label;delete button.dataset.label;}}
-function eventId(type,key=""){return `${(state.assessment?.assessment_id||"none").slice(0,8)}-${type}-${key||crypto.randomUUID()}`.slice(0,80);}
+function eventId(type,key=""){return `${(state.assessment?.assessment_id||"none").slice(0,8)}-${type}-${key||uuid()}`.slice(0,80);}
 async function gameEvent(type,payload={},key=""){
   if(!state.assessment)return null;
   try{return await request(`/profiles/${state.credentials.session_id}/assessments/${state.assessment.assessment_id}/game-events`,{method:"POST",body:JSON.stringify({event_id:eventId(type,key),event_type:type,payload})});}catch{return null;}
