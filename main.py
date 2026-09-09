@@ -8,7 +8,10 @@ from typing import Optional, AsyncGenerator
 from contextlib import asynccontextmanager
 
 import aiosqlite
-import anthropic
+try:  # optional: only needed for the legacy cloud scan, never on an offline box
+    import anthropic
+except ImportError:  # pragma: no cover - exercised on the Raspberry Pi build
+    anthropic = None
 import httpx
 from fastapi import FastAPI, Query, Path, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -134,7 +137,7 @@ MAP_QUESTIONS = {
 load_dotenv()
 
 # ── Config ────────────────────────────────────────────────────────────────────
-ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY", "") if anthropic else ""
 DB_PATH       = os.getenv("DB_PATH", "willaijob.db")
 USE_AI_SCAN   = bool(ANTHROPIC_KEY)
 ENABLE_LEGACY_GAME = os.getenv("ENABLE_LEGACY_GAME", "false").lower() == "true"
