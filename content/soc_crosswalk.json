@@ -1,0 +1,635 @@
+{
+  "crosswalk_version": "1.0.0",
+  "classification": "2018 SOC (US Standard Occupational Classification)",
+  "match_quality": {
+    "direct": "the SOC occupation is the same job under a different name",
+    "close": "same task profile, narrower or broader scope",
+    "analogue": "no SOC equivalent exists (mostly informal-economy and Kenya-specific roles); mapped to the occupation with the closest task mix, and scores are treated as indicative only"
+  },
+  "careers": {
+    "agronomist": [
+      "19-1013",
+      "direct"
+    ],
+    "agri-extension": [
+      "25-9021",
+      "direct"
+    ],
+    "farm-manager": [
+      "11-9013",
+      "direct"
+    ],
+    "horticulturist": [
+      "19-1013",
+      "close"
+    ],
+    "livestock-officer": [
+      "19-1011",
+      "close"
+    ],
+    "fisheries-officer": [
+      "19-1023",
+      "close"
+    ],
+    "food-scientist": [
+      "19-1012",
+      "direct"
+    ],
+    "agri-economist": [
+      "19-3011",
+      "close"
+    ],
+    "crop-scientist": [
+      "19-1013",
+      "direct"
+    ],
+    "irrigation-engineer": [
+      "17-2021",
+      "close"
+    ],
+    "smallholder-farmer": [
+      "45-2092",
+      "analogue"
+    ],
+    "fisher": [
+      "45-3031",
+      "direct"
+    ],
+    "forestry-officer": [
+      "19-1032",
+      "direct"
+    ],
+    "accountant": [
+      "13-2011",
+      "direct"
+    ],
+    "bank-teller": [
+      "43-3071",
+      "direct"
+    ],
+    "financial-analyst": [
+      "13-2051",
+      "direct"
+    ],
+    "hr-manager": [
+      "11-3121",
+      "direct"
+    ],
+    "economist": [
+      "19-3011",
+      "direct"
+    ],
+    "marketing-manager": [
+      "11-2021",
+      "direct"
+    ],
+    "auditor": [
+      "13-2011",
+      "close"
+    ],
+    "insurance-agent": [
+      "41-3021",
+      "direct"
+    ],
+    "supply-chain": [
+      "11-3071",
+      "direct"
+    ],
+    "tax-consultant": [
+      "13-2082",
+      "direct"
+    ],
+    "procurement-officer": [
+      "13-1020",
+      "close"
+    ],
+    "office-admin": [
+      "43-6014",
+      "direct"
+    ],
+    "customer-service": [
+      "43-4051",
+      "direct"
+    ],
+    "biz-dev": [
+      "41-4012",
+      "close"
+    ],
+    "call-centre-supervisor": [
+      "43-1011",
+      "close"
+    ],
+    "nurse": [
+      "29-1141",
+      "direct"
+    ],
+    "gp": [
+      "29-1215",
+      "direct"
+    ],
+    "pharmacist": [
+      "29-1051",
+      "direct"
+    ],
+    "radiologist": [
+      "29-1224",
+      "direct"
+    ],
+    "physiotherapist": [
+      "29-1123",
+      "direct"
+    ],
+    "lab-tech": [
+      "29-2010",
+      "direct"
+    ],
+    "clinical-officer": [
+      "29-1071",
+      "analogue"
+    ],
+    "dentist": [
+      "29-1021",
+      "direct"
+    ],
+    "nutritionist": [
+      "29-1031",
+      "direct"
+    ],
+    "public-health": [
+      "21-1091",
+      "close"
+    ],
+    "surgeon": [
+      "29-1242",
+      "close"
+    ],
+    "mental-health": [
+      "21-1018",
+      "direct"
+    ],
+    "midwife": [
+      "29-1161",
+      "direct"
+    ],
+    "chw": [
+      "21-1094",
+      "direct"
+    ],
+    "ophthalmologist": [
+      "29-1241",
+      "direct"
+    ],
+    "software-dev": [
+      "15-1252",
+      "direct"
+    ],
+    "data-analyst": [
+      "15-2051",
+      "close"
+    ],
+    "cybersecurity": [
+      "15-1212",
+      "direct"
+    ],
+    "sysadmin": [
+      "15-1244",
+      "direct"
+    ],
+    "ux-designer": [
+      "15-1255",
+      "direct"
+    ],
+    "network-engineer": [
+      "15-1241",
+      "direct"
+    ],
+    "devops": [
+      "15-1252",
+      "close"
+    ],
+    "mobile-dev": [
+      "15-1252",
+      "close"
+    ],
+    "ai-ml": [
+      "15-2051",
+      "close"
+    ],
+    "it-support": [
+      "15-1232",
+      "direct"
+    ],
+    "dba": [
+      "15-1242",
+      "direct"
+    ],
+    "product-manager": [
+      "11-3021",
+      "close"
+    ],
+    "qa-engineer": [
+      "15-1253",
+      "direct"
+    ],
+    "blockchain-dev": [
+      "15-1252",
+      "close"
+    ],
+    "primary-teacher": [
+      "25-2021",
+      "direct"
+    ],
+    "secondary-teacher": [
+      "25-2031",
+      "direct"
+    ],
+    "university-lecturer": [
+      "25-1022",
+      "analogue"
+    ],
+    "special-needs": [
+      "25-2059",
+      "close"
+    ],
+    "librarian": [
+      "25-4022",
+      "direct"
+    ],
+    "career-counsellor": [
+      "21-1012",
+      "direct"
+    ],
+    "education-officer": [
+      "11-9032",
+      "close"
+    ],
+    "ece-teacher": [
+      "25-2011",
+      "direct"
+    ],
+    "civil-engineer": [
+      "17-2051",
+      "direct"
+    ],
+    "electrical-engineer": [
+      "17-2071",
+      "direct"
+    ],
+    "mechanical-engineer": [
+      "17-2141",
+      "direct"
+    ],
+    "architect": [
+      "17-1011",
+      "direct"
+    ],
+    "quantity-surveyor": [
+      "13-1051",
+      "close"
+    ],
+    "env-engineer": [
+      "17-2081",
+      "direct"
+    ],
+    "electrician": [
+      "47-2111",
+      "direct"
+    ],
+    "plumber": [
+      "47-2152",
+      "direct"
+    ],
+    "carpenter": [
+      "47-2031",
+      "direct"
+    ],
+    "welder": [
+      "51-4121",
+      "direct"
+    ],
+    "auto-mechanic": [
+      "49-3023",
+      "direct"
+    ],
+    "mason": [
+      "47-2021",
+      "direct"
+    ],
+    "tailor": [
+      "51-6052",
+      "direct"
+    ],
+    "hvac": [
+      "49-9021",
+      "direct"
+    ],
+    "construction-worker": [
+      "47-2061",
+      "direct"
+    ],
+    "journalist": [
+      "27-3023",
+      "direct"
+    ],
+    "graphic-designer": [
+      "27-1024",
+      "direct"
+    ],
+    "photographer": [
+      "27-4021",
+      "direct"
+    ],
+    "social-media-manager": [
+      "27-3031",
+      "close"
+    ],
+    "copywriter": [
+      "27-3043",
+      "direct"
+    ],
+    "pr-specialist": [
+      "27-3031",
+      "direct"
+    ],
+    "videographer": [
+      "27-4031",
+      "close"
+    ],
+    "animator": [
+      "27-1014",
+      "direct"
+    ],
+    "content-creator": [
+      "27-3043",
+      "analogue"
+    ],
+    "lawyer": [
+      "23-1011",
+      "direct"
+    ],
+    "judge": [
+      "23-1023",
+      "direct"
+    ],
+    "paralegal": [
+      "23-2011",
+      "direct"
+    ],
+    "civil-servant": [
+      "43-4061",
+      "analogue"
+    ],
+    "policy-analyst": [
+      "19-3094",
+      "close"
+    ],
+    "compliance-officer": [
+      "13-1041",
+      "direct"
+    ],
+    "truck-driver": [
+      "53-3032",
+      "direct"
+    ],
+    "boda-boda": [
+      "53-3054",
+      "analogue"
+    ],
+    "pilot": [
+      "53-2012",
+      "direct"
+    ],
+    "logistics-coordinator": [
+      "43-5061",
+      "close"
+    ],
+    "matatu-driver": [
+      "53-3052",
+      "analogue"
+    ],
+    "warehouse-manager": [
+      "11-3071",
+      "close"
+    ],
+    "aviation-tech": [
+      "49-3011",
+      "direct"
+    ],
+    "hotel-manager": [
+      "11-9081",
+      "direct"
+    ],
+    "chef": [
+      "35-1011",
+      "direct"
+    ],
+    "tour-guide": [
+      "39-7010",
+      "direct"
+    ],
+    "front-desk": [
+      "43-4081",
+      "direct"
+    ],
+    "event-planner": [
+      "13-1121",
+      "direct"
+    ],
+    "travel-agent": [
+      "41-3041",
+      "direct"
+    ],
+    "social-worker": [
+      "21-1022",
+      "close"
+    ],
+    "ngo-officer": [
+      "11-9151",
+      "close"
+    ],
+    "psychologist": [
+      "19-3033",
+      "direct"
+    ],
+    "youth-worker": [
+      "21-1021",
+      "close"
+    ],
+    "religious-leader": [
+      "21-2011",
+      "direct"
+    ],
+    "community-dev": [
+      "11-9151",
+      "close"
+    ],
+    "biologist": [
+      "19-1029",
+      "direct"
+    ],
+    "chemist": [
+      "19-2031",
+      "direct"
+    ],
+    "statistician": [
+      "15-2041",
+      "direct"
+    ],
+    "meteorologist": [
+      "19-2021",
+      "direct"
+    ],
+    "veterinarian": [
+      "29-1131",
+      "direct"
+    ],
+    "geologist": [
+      "19-2042",
+      "direct"
+    ],
+    "mathematician": [
+      "15-2021",
+      "direct"
+    ],
+    "mpesa-agent": [
+      "43-3071",
+      "analogue"
+    ],
+    "jua-kali": [
+      "49-9071",
+      "analogue"
+    ],
+    "market-trader": [
+      "41-2031",
+      "analogue"
+    ],
+    "food-vendor": [
+      "41-9091",
+      "analogue"
+    ],
+    "domestic-worker": [
+      "37-2012",
+      "direct"
+    ],
+    "security-guard": [
+      "33-9032",
+      "direct"
+    ],
+    "shopkeeper": [
+      "41-1011",
+      "analogue"
+    ],
+    "retail-associate": [
+      "41-2031",
+      "direct"
+    ],
+    "real-estate-agent": [
+      "41-9022",
+      "direct"
+    ],
+    "solar-technician": [
+      "47-2231",
+      "direct"
+    ],
+    "mining-technician": [
+      "47-5041",
+      "close"
+    ],
+    "plant-operator": [
+      "51-1011",
+      "close"
+    ],
+    "quality-technician": [
+      "51-9061",
+      "direct"
+    ],
+    "telecom-technician": [
+      "49-2022",
+      "direct"
+    ],
+    "hairdresser": [
+      "39-5012",
+      "direct"
+    ],
+    "fashion-designer": [
+      "27-1022",
+      "direct"
+    ],
+    "police-officer": [
+      "33-3051",
+      "direct"
+    ],
+    "firefighter": [
+      "33-2011",
+      "direct"
+    ],
+    "fitness-trainer": [
+      "39-9031",
+      "direct"
+    ],
+    "sports-coach": [
+      "27-2022",
+      "direct"
+    ],
+    "relationship-manager": [
+      "41-3031",
+      "close"
+    ],
+    "credit-analyst": [
+      "13-2041",
+      "direct"
+    ],
+    "loan-officer": [
+      "13-2072",
+      "direct"
+    ],
+    "bank-branch-manager": [
+      "11-3031",
+      "close"
+    ],
+    "bank-operations-officer": [
+      "43-4141",
+      "close"
+    ],
+    "aml-analyst": [
+      "13-1041",
+      "direct"
+    ],
+    "credit-risk-analyst": [
+      "13-2054",
+      "direct"
+    ],
+    "treasury-dealer": [
+      "41-3031",
+      "close"
+    ],
+    "investment-banker": [
+      "13-2051",
+      "close"
+    ],
+    "wealth-manager": [
+      "13-2052",
+      "direct"
+    ],
+    "microfinance-officer": [
+      "13-2072",
+      "analogue"
+    ],
+    "sacco-officer": [
+      "13-2072",
+      "analogue"
+    ],
+    "mobile-money-officer": [
+      "43-3071",
+      "analogue"
+    ],
+    "mortgage-officer": [
+      "13-2072",
+      "close"
+    ],
+    "bancassurance-officer": [
+      "41-3021",
+      "close"
+    ]
+  }
+}

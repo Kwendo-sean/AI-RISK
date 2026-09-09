@@ -1,3 +1,24 @@
 venv/
 .claude/
 __pycache__/
+*.pyc
+
+# Secrets
+.env
+
+# Local database files (the schema is in migrations/, the data is not source)
+*.db
+*.db-shm
+*.db-wal
+
+# Downloaded research inputs. data/sources/ IS committed (CC BY 4.0);
+# data/cache/ holds the AIOE appendix, which carries no redistribution licence.
+data/cache/
+
+# Lead exports contain personal data - never commit them
+leads.xlsx
+*.leads.xlsx
+
+# Local screenshots
+shot-*.png
+landing-*.png

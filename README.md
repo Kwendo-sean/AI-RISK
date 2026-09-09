@@ -1,105 +1,96 @@
-# Will AI Take My Job? — Full Stack Setup
+# Will AI Take My Job?
 
-## Project Structure
-```
-project/
-├── backend/
-│   ├── main.py           # FastAPI app (all API endpoints)
-│   ├── careers_data.py   # 120+ Kenyan careers + threat data
-│   ├── requirements.txt  # Python deps
-│   └── willaijob.db      # SQLite DB (auto-created on first run)
-└── frontend/
-    └── index.html        # Complete frontend (screens 0–5 + Round 1)
-```
+A personalised, task-level AI career assessment. You pick your job, answer 12–16 adaptive
+questions, and get seven explainable scores, the tasks most and least likely to change,
+and a ranked set of skills to build — wrapped in a career-survival game.
 
-## Backend Setup
+Career scores are derived from published research (Microsoft Research's Copilot usage
+study and the Felten/Raj/Seamans AI Occupational Exposure index), not from guesses.
+See [docs/DATA_SOURCES.md](docs/DATA_SOURCES.md).
+
+## Run it locally
 
 ```bash
-cd backend
-
-# Create virtual environment
 python -m venv venv
-source venv/bin/activate      # Windows: venv\Scripts\activate
-
-# Install dependencies
+venv\Scripts\activate          # Windows;  source venv/bin/activate on macOS/Linux
 pip install -r requirements.txt
-
-# Create .env file
-cp .env.example .env
-# Add your ANTHROPIC_API_KEY to .env
-
-# Run server
 uvicorn main:app --reload --port 8000
 ```
 
-## Environment Variables (.env)
-```
-ANTHROPIC_API_KEY=sk-ant-...     # Required for AI-powered terminal scan
-DB_PATH=willaijob.db             # SQLite DB path (default)
-```
+Open <http://127.0.0.1:8000>. The backend serves the frontend, so there is nothing else
+to start. No API keys are required — with none configured the app uses deterministic
+static output and SQLite.
 
-## API Endpoints
+## Run it with Docker
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | /api/health | Server health + feature flags |
-| GET | /api/stats | Homepage stats (career count, sectors) |
-| GET | /api/sectors | All sectors with career counts |
-| GET | /api/careers | Search/filter careers |
-| GET | /api/careers/{id} | Get single career |
-| GET | /api/careers/{id}/threats | Round 1 threat cards |
-| GET | /api/careers/{id}/skills | Skill combat cards |
-| GET | /api/scan/{id} | SSE streaming terminal scan |
-| POST | /api/email | Collect email lead |
-| POST | /api/session | Save game session state |
-| GET | /api/stats | Public dashboard stats |
-
-## Frontend
-
-Open `frontend/index.html` directly in browser, or serve it:
 ```bash
-cd frontend
-python -m http.server 3000
-# Open http://localhost:3000
+cp .env.example .env      # set POSTGRES_PASSWORD at minimum
+docker compose up -d --build
+curl -s localhost:8000/api/v2/ready | jq
 ```
 
-Make sure backend is running at http://localhost:8000
+That brings up the app plus PostgreSQL. Full deployment, scaling, cutover and Raspberry Pi
+instructions are in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
-## Without API Key
+## Layout
 
-The app works fully without an ANTHROPIC_API_KEY:
-- Terminal uses static data (still looks great)
-- All other screens are fully functional
-- Add API key later to get Claude-generated unique terminal content per career
-
-## Ownership
-
-| Screen | Owner | Status |
-|--------|-------|--------|
-| S0: Career browser | You | DONE |
-| S1: Personality trial | You | DONE |
-| S2: Selfie | You | DONE |
-| S3: Terminal scan | You | DONE (SSE + Claude API) |
-| S4: Slot machine verdict | You | DONE |
-| S5: Round 1 + Brace | You | DONE |
-| S6: Skill card combat | Friend 2 | TODO |
-| S7: Power-ups | Friend 2 | TODO |
-| S8: Aftermath | Friend 2 | TODO |
-| Kenya map (between S0–S1) | Friend 1 | TODO |
-
-## Handoff State for Friend 2
-
-After Round 1 completes, `G` (global state object) contains:
-```js
-G.career      // {id, title, sector, risk, is_technical, roadmap_slug, ...}
-G.avatar      // {id, name, cls, c}
-G.selfieUrl   // base64 string or null
-G.playerHP    // number (reduced by Round 1 attacks)
-G.algoHP      // number (= career risk score)
-G.threats     // [{title, body, damage}] (3 threats from API)
-G.skills      // string[] (6 skill names from API)
-G.xp          // number (accumulated XP)
+```
+main.py                  FastAPI app, legacy endpoints, static hosting
+platform_api.py          /api/v2 routes, validation, security middleware
+platform_content.py      career/question/skill loading, search, validation
+assessment_engine.py     deterministic scoring (seven dimensions)
+platform_db.py           backend facade -> db_sqlite.py | db_postgres.py
+platform_email.py        results email composition + Resend outbox
+platform_llm.py          optional local model (Ollama/Gemma) for phrasing only
+content/                 versioned seed data + SOC crosswalk
+data/sources/            research inputs (CC BY 4.0, committed)
+migrations/{sqlite,postgres}/  ordered schema migrations
+frontend/                index.html, app.js, styles.css, media
+scripts/                 content build, lead export, email flush, db migration
+tests/                   API, content, frontend contract, browser critical path
+load_tests/              k6 scenario (100 -> 2000 VUs)
 ```
 
-Friend 2 calls `goTo(6)` to advance to skill combat screen.
-Friend 1 inserts Kenya map between `goTo(1)` and `goTo(2)` in the flow.
+## Configuration
+
+Everything is environment-driven; see [.env.example](.env.example). The important ones:
+
+| Variable | Effect |
+|---|---|
+| `DATABASE_URL` | `postgresql://…` for Postgres. Unset → SQLite at `DB_PATH`. |
+| `ALLOWED_ORIGINS` | CORS allow-list. Set to your domain in production. |
+| `WEB_CONCURRENCY` / `PG_POOL_MAX` | Worker count and pool size — see the connection budget in the deployment doc. |
+| `RESEND_API_KEY` | Enables results emails. Without it, mail is queued but never sent. |
+| `OLLAMA_URL` / `OLLAMA_MODEL` | Optional local model for the personalised sentence. Never used for scoring. |
+
+## Tests
+
+```bash
+pytest tests -q                  # API, content, scoring, frontend contract
+node tests/browser-smoke.mjs     # headless Chrome walk of the full journey
+k6 run load_tests/scenario.js    # load profile (needs the app running)
+```
+
+## Content and data
+
+```bash
+python scripts/fetch_sources.py            # download research inputs
+python scripts/build_career_evidence.py    # rescore careers from the sources
+python scripts/validate_content.py         # schema, duplicates, coverage
+python scripts/add_banking_careers.py      # example of extending the seed
+```
+
+## Operations
+
+```bash
+python scripts/export_leads.py --days 30   # consented leads -> leads.xlsx
+python scripts/flush_emails.py --status    # outbox state
+python scripts/migrate_sqlite_to_postgres.py --sqlite old.db
+```
+
+## A note on what this measures
+
+The scores are percentile positions relative to the other careers in the dataset — how
+much of your work generative AI is being used for today, and how much it could help you.
+They are not probabilities that your job will disappear, and the app does not present them
+as such.

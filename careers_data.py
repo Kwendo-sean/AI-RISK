@@ -467,7 +467,7 @@ SECTOR_THREATS = {
         {"title":"AI pricing & demand prediction","body":"Platform algorithms predict product demand and set optimal prices in real time — removing the market intelligence advantage that experienced traders have built over years.","damage":18},
     ],
 }
-
+ 
 # Sector-level skill sets (for skill card combat, Friend 2 screen)
 SECTOR_SKILLS = {sector: [c["skills"] for c in CAREERS if c["sector"] == sector][0]
                  for sector in set(c["sector"] for c in CAREERS)}

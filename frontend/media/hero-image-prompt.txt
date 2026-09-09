@@ -1,0 +1,40 @@
+PROMPT FOR GEMINI (hero image, square 1:1, saved as frontend/media/hero.png)
+
+A cinematic square photograph, 1:1 aspect ratio, of a single focused professional
+at work in a dark studio-lit workspace — a young African engineer in a plain
+work shirt, seated three-quarter view at a wide desk, hands resting on a
+keyboard, looking at a large monitor. On the screen, a clean geometric interface
+glows: simple charts and neat rows of data, softly out of focus. Beside the
+monitor sit real tools of the trade — a notebook, a pen, a coffee cup, a small
+hardware component — so the frame reads as human craft and machine assistance
+sharing one desk.
+
+Lighting: low-key and controlled. Deep near-black background (#080808), the
+subject lit from the left by soft warm key light, with a restrained red rim
+light (#ff443d) tracing the shoulder and the edge of the monitor. One thin band
+of red glow from the screen falls across the desk surface.
+
+Composition: calm, ordered and symmetrical. The subject sits left of centre with
+clear negative space to the right. Straight, deliberate lines — desk edge,
+monitor frame, wall seam. Nothing floating, nothing shattered, no scattered
+particles, no exploding fragments, no collage.
+
+Style: editorial documentary photography, 50mm lens, shallow depth of field,
+natural skin tones, fine film grain, high contrast, muted palette of black,
+charcoal, warm skin tone and a single red accent.
+
+NEGATIVE / AVOID: no glowing robot, no humanoid android, no brain or circuit-board
+metaphor, no floating holograms, no binary code or matrix rain, no cyberpunk
+neon clutter, no abstract fragmented geometry, no double exposure, no text,
+no logos, no watermark, no distorted hands or extra fingers.
+
+
+VARIATION B (if you want hands only, no face)
+
+Square 1:1 close-up, top-down view of a single desk under low warm light: a pair
+of human hands writing in a notebook on the left, a laptop showing a clean,
+simple data interface on the right, a red pen and a phone placed square to the
+edges. Deep black background (#080808), one soft red accent light (#ff443d) from
+the screen. Orderly, minimal, symmetrical layout, editorial product photography,
+shallow depth of field, fine grain. No robots, no holograms, no floating
+elements, no text, no logos.

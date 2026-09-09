@@ -1,0 +1,180 @@
+{
+  "dataset_version": "1.0.0",
+  "response_sets": {
+    "amount": ["Not part of my work", "A small part", "About half", "Most of my work", "Almost all of my work"],
+    "frequency": ["Never", "Rarely", "Sometimes", "Often", "Every day"],
+    "confidence": ["Not yet", "With support", "Competently", "Confidently", "I guide others"],
+    "change": ["No meaningful change", "A little change", "Some change", "Major change", "It has transformed the role"]
+  },
+  "questions": [
+    {
+      "id": "q_routine_general_v1", "construct_id": "routine_intensity",
+      "text": "How much of your work follows repeatable steps with predictable inputs and outputs?",
+      "response_type": "single_choice", "response_set": "amount", "career_tags": ["*"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"automation_exposure": [0, 1, 2, 3, 4]}, "weight": 1.4,
+      "why_asked": "Tasks that repeat the same way each time are the easiest for software to take over.", "follow_up": null
+    },
+    {
+      "id": "q_routine_records_v1", "construct_id": "routine_intensity",
+      "text": "How much time do you spend transferring, checking, reconciling, or filing records in a standard format?",
+      "response_type": "single_choice", "response_set": "amount", "career_tags": ["finance", "administration", "customer-service", "government", "logistics"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"automation_exposure": [0, 1, 2, 3, 4]}, "weight": 1.5,
+      "why_asked": "Filling in forms and keeping records is some of the first work AI tools take on.", "follow_up": null
+    },
+    {
+      "id": "q_physical_general_v1", "construct_id": "physical_presence",
+      "text": "How often must you physically handle equipment, materials, land, animals, food, or people to complete the work?",
+      "response_type": "single_choice", "response_set": "frequency", "career_tags": ["*"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"physical_defensibility": [0, 1, 2, 3, 4]}, "weight": 1.2,
+      "why_asked": "Physical work that changes from day to day is hard for software alone to do.", "follow_up": null
+    },
+    {
+      "id": "q_physical_field_v1", "construct_id": "physical_presence",
+      "text": "How often do you work on-site where weather, terrain, machinery, traffic, or changing conditions affect your next move?",
+      "response_type": "single_choice", "response_set": "frequency", "career_tags": ["agriculture", "skilled-trades", "transport", "construction", "energy", "public-safety"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"physical_defensibility": [0, 1, 2, 3, 4], "human_advantage": [0, 0, 1, 1, 2]}, "weight": 1.4,
+      "why_asked": "Work out in the field needs someone on the spot who can react to what they find.", "follow_up": null
+    },
+    {
+      "id": "q_human_trust_v1", "construct_id": "human_trust",
+      "text": "How often does success depend on another person trusting your judgment, care, discretion, or integrity?",
+      "response_type": "single_choice", "response_set": "frequency", "career_tags": ["*"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"human_advantage": [0, 1, 2, 3, 4]}, "weight": 1.3,
+      "why_asked": "When people need to trust the person in front of them, the job usually stays human even if AI helps.", "follow_up": null
+    },
+    {
+      "id": "q_accountability_v1", "construct_id": "accountability",
+      "text": "How often are you personally accountable for decisions that materially affect safety, rights, money, health, or livelihoods?",
+      "response_type": "single_choice", "response_set": "frequency", "career_tags": ["*"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"accountability_protection": [0, 1, 2, 3, 4], "reskilling_urgency": [1, 1, 0, 0, 0]}, "weight": 1.25,
+      "why_asked": "A company can let AI do the analysis and still need a person to answer for the decision.", "follow_up": null
+    },
+    {
+      "id": "q_creativity_v1", "construct_id": "creative_originality",
+      "text": "How often must you create an original direction, interpretation, design, performance, or solution rather than adapt a template?",
+      "response_type": "single_choice", "response_set": "frequency", "career_tags": ["creative", "design", "media", "marketing", "architecture", "entrepreneurship", "*"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"human_advantage": [0, 1, 2, 3, 4], "augmentation_opportunity": [1, 2, 3, 4, 4]}, "weight": 1.1,
+      "why_asked": "AI can produce plenty of options, but choosing the right one for the moment is still your call.", "follow_up": null
+    },
+    {
+      "id": "q_data_handling_v1", "construct_id": "data_handling",
+      "text": "How much of your output is produced by finding, cleaning, summarizing, or transforming digital information?",
+      "response_type": "single_choice", "response_set": "amount", "career_tags": ["*"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"automation_exposure": [0, 1, 2, 3, 4], "augmentation_opportunity": [0, 1, 2, 4, 4]}, "weight": 1.1,
+      "why_asked": "Work done entirely on a screen is easy for AI to reach, but it can also save you a lot of time.", "follow_up": null
+    },
+    {
+      "id": "q_reasoning_v1", "construct_id": "analytical_reasoning",
+      "text": "How often do you combine incomplete or conflicting evidence to diagnose a problem or choose a course of action?",
+      "response_type": "single_choice", "response_set": "frequency", "career_tags": ["*"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"human_advantage": [0, 1, 2, 3, 4], "augmentation_opportunity": [1, 2, 3, 4, 4]}, "weight": 1.2,
+      "why_asked": "AI can help you think a problem through, but unclear cases still need someone to check the answer.", "follow_up": null
+    },
+    {
+      "id": "q_ai_adoption_v1", "construct_id": "ai_adoption",
+      "text": "How confidently can you use AI tools while checking their work for errors, bias, privacy, and safety?",
+      "response_type": "single_choice", "response_set": "confidence", "career_tags": ["*"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"career_adaptability": [0, 1, 2, 3, 4], "reskilling_urgency": [4, 3, 2, 1, 0], "augmentation_opportunity": [0, 1, 2, 3, 4]}, "weight": 1.5,
+      "why_asked": "Knowing how to use AI well is what turns it from a threat into an advantage.",
+      "follow_up": {"when_max_index": 1, "construct_id": "learning_adaptability"}
+    },
+    {
+      "id": "q_communication_v1", "construct_id": "communication",
+      "text": "How often must you explain complex or sensitive information so a specific audience can act on it?",
+      "response_type": "single_choice", "response_set": "frequency", "career_tags": ["*"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"human_advantage": [0, 1, 2, 3, 4]}, "weight": 1.0,
+      "why_asked": "Writing for people you understand is harder to copy than turning out generic text.", "follow_up": null
+    },
+    {
+      "id": "q_negotiation_v1", "construct_id": "negotiation",
+      "text": "How often do you negotiate trade-offs among people with different goals, power, or constraints?",
+      "response_type": "single_choice", "response_set": "frequency", "career_tags": ["sales", "law", "management", "procurement", "entrepreneurship", "property", "human-resources"], "industry_tags": ["*"], "seniority_tags": ["manager", "executive", "founder", "self-employed", "mid-career", "senior"],
+      "scoring": {"human_advantage": [0, 1, 2, 3, 4], "accountability_protection": [0, 0, 1, 2, 3]}, "weight": 1.1,
+      "why_asked": "Negotiating means reading people, knowing what they want, and having the authority to agree.", "follow_up": null
+    },
+    {
+      "id": "q_regulation_v1", "construct_id": "regulation_compliance",
+      "text": "How often must you interpret rules, standards, permits, or professional obligations rather than simply follow a checklist?",
+      "response_type": "single_choice", "response_set": "frequency", "career_tags": ["healthcare", "law", "finance", "government", "engineering", "energy", "aviation", "public-safety"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"accountability_protection": [0, 1, 2, 3, 4], "human_advantage": [0, 0, 1, 2, 3]}, "weight": 1.2,
+      "why_asked": "Regulated work usually needs a qualified person to sign off and take responsibility.", "follow_up": null
+    },
+    {
+      "id": "q_safety_v1", "construct_id": "safety_judgment",
+      "text": "How often must you notice hazards and act safely when the situation differs from the standard procedure?",
+      "response_type": "single_choice", "response_set": "frequency", "career_tags": ["healthcare", "agriculture", "skilled-trades", "transport", "construction", "manufacturing", "energy", "public-safety"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"accountability_protection": [0, 1, 2, 3, 4], "physical_defensibility": [0, 0, 1, 2, 3]}, "weight": 1.4,
+      "why_asked": "When something goes wrong and safety is at stake, someone has to be there to make the call.", "follow_up": null
+    },
+    {
+      "id": "q_emotional_v1", "construct_id": "emotional_intelligence",
+      "text": "How often must you read emotion, reduce tension, motivate someone, or respond with genuine care?",
+      "response_type": "single_choice", "response_set": "frequency", "career_tags": ["healthcare", "education", "social-community", "customer-service", "human-resources", "hospitality", "leadership"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"human_advantage": [0, 1, 2, 3, 4]}, "weight": 1.25,
+      "why_asked": "Difficult conversations with upset or worried people are still strongly human work.", "follow_up": null
+    },
+    {
+      "id": "q_local_v1", "construct_id": "local_knowledge",
+      "text": "How often does your result depend on local language, culture, informal networks, terrain, or market knowledge that is poorly documented?",
+      "response_type": "single_choice", "response_set": "frequency", "career_tags": ["agriculture", "informal-economy", "transport", "tourism", "social-community", "government", "sales", "entrepreneurship"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"human_advantage": [0, 1, 2, 3, 4], "physical_defensibility": [0, 0, 1, 1, 2]}, "weight": 1.2,
+      "why_asked": "Knowing your area, your people and how things really work locally is not something AI is trained on.", "follow_up": null
+    },
+    {
+      "id": "q_entrepreneur_v1", "construct_id": "entrepreneurship",
+      "text": "How often do you decide what to sell, set prices, find customers, manage cash, or take business risk yourself?",
+      "response_type": "single_choice", "response_set": "frequency", "career_tags": ["entrepreneurship", "informal-economy", "self-employed", "retail", "freelance"], "industry_tags": ["*"], "seniority_tags": ["founder", "self-employed", "*"],
+      "scoring": {"career_adaptability": [0, 1, 2, 3, 4], "human_advantage": [0, 1, 2, 3, 3]}, "weight": 1.2,
+      "why_asked": "If you set your own prices and choose your own customers, you control more of what happens next.", "follow_up": null
+    },
+    {
+      "id": "q_client_v1", "construct_id": "client_interaction",
+      "text": "How much of your value comes from understanding a client’s unstated needs and adapting the service in real time?",
+      "response_type": "single_choice", "response_set": "amount", "career_tags": ["customer-service", "sales", "hospitality", "healthcare", "law", "creative", "skilled-trades", "property", "personal-care"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"human_advantage": [0, 1, 2, 3, 4]}, "weight": 1.1,
+      "why_asked": "Working out what a client actually needs is harder to standardise than a simple transaction.", "follow_up": null
+    },
+    {
+      "id": "q_learning_v1", "construct_id": "learning_adaptability",
+      "text": "When tools or customer expectations change, how confidently can you learn a new method and apply it to real work?",
+      "response_type": "single_choice", "response_set": "confidence", "career_tags": ["*"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"career_adaptability": [0, 1, 2, 3, 4], "reskilling_urgency": [4, 3, 2, 1, 0]}, "weight": 1.4,
+      "why_asked": "How quickly you pick up new tools is the one thing here you can change straight away.", "follow_up": null
+    },
+    {
+      "id": "q_domain_v1", "construct_id": "domain_expertise",
+      "text": "How much does your work rely on expertise built through substantial practice, certification, or hard-to-transfer experience?",
+      "response_type": "single_choice", "response_set": "amount", "career_tags": ["*"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"human_advantage": [0, 1, 2, 3, 4], "accountability_protection": [0, 0, 1, 2, 3]}, "weight": 1.1,
+      "why_asked": "The better you know your field, the quicker you spot when AI gets something wrong.", "follow_up": null
+    },
+    {
+      "id": "q_environment_v1", "construct_id": "work_environment",
+      "text": "How predictable is your work environment from one day or case to the next?",
+      "response_type": "single_choice", "answers": ["Completely predictable", "Mostly predictable", "Mixed", "Often unpredictable", "Highly unpredictable"], "career_tags": ["*"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"physical_defensibility": [0, 1, 2, 3, 4], "human_advantage": [0, 0, 1, 2, 3]}, "weight": 1.0,
+      "why_asked": "It is easier to automate work in a steady setting than work where conditions keep changing.", "follow_up": null
+    },
+    {
+      "id": "q_income_v1", "construct_id": "income_model",
+      "text": "Which best describes how your work creates income?",
+      "response_type": "single_choice", "answers": ["Paid for volume or standard tasks", "Paid for time", "Paid for technical output", "Paid for outcomes or relationships", "I own the business or assets"], "career_tags": ["*"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"automation_exposure": [4, 3, 2, 1, 0], "career_adaptability": [0, 1, 2, 3, 4]}, "weight": 0.9,
+      "why_asked": "Being paid per task carries more risk than being paid for results or owning the work.", "follow_up": null
+    },
+    {
+      "id": "q_leadership_v1", "construct_id": "leadership",
+      "text": "How often do you set direction, allocate resources, coach others, or take responsibility for a team’s outcome?",
+      "response_type": "single_choice", "response_set": "frequency", "career_tags": ["management", "leadership", "*"], "industry_tags": ["*"], "seniority_tags": ["manager", "executive", "founder", "self-employed", "senior", "mid-career"],
+      "scoring": {"human_advantage": [0, 1, 2, 3, 4], "accountability_protection": [0, 1, 2, 3, 4]}, "weight": 1.1,
+      "why_asked": "Leading means motivating people, weighing trade-offs and answering for how it turns out.", "follow_up": null
+    },
+    {
+      "id": "q_role_change_v1", "construct_id": "recent_transformation",
+      "text": "During the past three years, how much have digital tools changed the tasks people in your role perform?",
+      "response_type": "single_choice", "response_set": "change", "career_tags": ["*"], "industry_tags": ["*"], "seniority_tags": ["*"],
+      "scoring": {"automation_exposure": [0, 1, 2, 3, 4], "reskilling_urgency": [0, 1, 2, 3, 4]}, "weight": 1.0,
+      "why_asked": "What has already changed in your job tells us more than any prediction about the future.", "follow_up": null
+    }
+  ]
+}

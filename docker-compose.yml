@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-willaijob}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-willaijob}
+    # Sized for ~200 concurrent users on a 2-4 GB host. See docs/DEPLOYMENT.md.
+    command: >
+      postgres
+      -c max_connections=120
+      -c shared_buffers=256MB
+      -c effective_cache_size=768MB
+      -c work_mem=8MB
+      -c maintenance_work_mem=64MB
+      -c random_page_cost=1.1
+      -c synchronous_commit=off
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-willaijob} -d ${POSTGRES_DB:-willaijob}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Not published to the host: only the app container needs it.
+    expose:
+      - "5432"
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-willaijob}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-willaijob}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8000}
+      PUBLIC_URL: ${PUBLIC_URL:-}
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-4}
+      PG_POOL_MAX: ${PG_POOL_MAX:-12}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-Future Skills <onboarding@resend.dev>}
+      EMAIL_REPLY_TO: ${EMAIL_REPLY_TO:-}
+      PROFILE_TTL_DAYS: ${PROFILE_TTL_DAYS:-90}
+    ports:
+      - "${PORT:-8000}:8000"
+    volumes:
+      # Only used if you switch this deployment back to SQLite.
+      - appdata:/data
+
+volumes:
+  pgdata:
+  appdata:

@@ -12,13 +12,18 @@ import anthropic
 import httpx
 from fastapi import FastAPI, Query, Path, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import StreamingResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from dotenv import load_dotenv
 
 from careers_data import CAREERS, SECTOR_THREATS, SECTOR_SKILLS
 from gamebackendv2 import router as game_router
+from platform_api import router as platform_router, SecurityAndOperationsMiddleware
+from platform_content import validate_content
+from platform_db import close_platform_db, init_platform_db
+from platform_email import start_email_worker, stop_email_worker
 
 # ── Career-specific map questions ────────────────────────────────────────────
 MAP_QUESTIONS = {
@@ -132,6 +137,7 @@ load_dotenv()
 ANTHROPIC_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 DB_PATH       = os.getenv("DB_PATH", "willaijob.db")
 USE_AI_SCAN   = bool(ANTHROPIC_KEY)
+ENABLE_LEGACY_GAME = os.getenv("ENABLE_LEGACY_GAME", "false").lower() == "true"
 
 # Simple in-memory cache  {cache_key: {"data": ..., "ts": timestamp}}
 _cache: dict = {}
@@ -190,27 +196,37 @@ async def init_db():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
-    yield
+    await init_platform_db()
+    validation = validate_content()
+    if not validation["valid"]:
+        raise RuntimeError(f"Content validation failed: {validation['errors'][:5]}")
+    start_email_worker()
+    try:
+        yield
+    finally:
+        await stop_email_worker()
+        await close_platform_db()
 
 # ── App ───────────────────────────────────────────────────────────────────────
 app = FastAPI(title="Will AI Take My Job? API", version="1.0.0", lifespan=lifespan)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+allowed_origins = [origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000").split(",") if origin.strip()]
+app.add_middleware(CORSMiddleware, allow_origins=allowed_origins, allow_credentials=False,
+                   allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+                   allow_headers=["Content-Type", "X-Session-Token", "X-Request-ID"])
+app.add_middleware(GZipMiddleware, minimum_size=800)
+app.add_middleware(SecurityAndOperationsMiddleware)
 
-app.include_router(game_router)
+if ENABLE_LEGACY_GAME:
+    app.include_router(game_router)
+app.include_router(platform_router)
 
 # ── Pydantic models ───────────────────────────────────────────────────────────
 class EmailLead(BaseModel):
-    email: str
-    career_id: str
-    career_title: str
-    risk_score: int
+    email: EmailStr
+    career_id: str = Field(max_length=80)
+    career_title: str = Field(max_length=160)
+    risk_score: int = Field(ge=0, le=100)
     avatar_class: Optional[str] = None
     xp_total: Optional[int] = 0
 
@@ -220,9 +236,9 @@ class SessionSave(BaseModel):
     avatar_class: Optional[str] = None
     player_hp: Optional[int] = 100
     algo_hp: Optional[int] = 100
-    skills_attacked: Optional[list] = []
-    skills_gapped: Optional[list] = []
-    tools_equipped: Optional[list] = []
+    skills_attacked: list = Field(default_factory=list)
+    skills_gapped: list = Field(default_factory=list)
+    tools_equipped: list = Field(default_factory=list)
 
 # ── Helper: lookup career ─────────────────────────────────────────────────────
 def find_career(career_id: str) -> Optional[dict]:
@@ -234,7 +250,7 @@ def find_career(career_id: str) -> Optional[dict]:
 
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "ai_scan": USE_AI_SCAN, "careers": len(CAREERS)}
+    return {"status": "ok", "ai_scan": USE_AI_SCAN, "legacy_game": ENABLE_LEGACY_GAME, "careers": len(CAREERS)}
 
 
 # ── GET /api/sectors ──────────────────────────────────────────────────────────
@@ -341,13 +357,13 @@ async def scan_career(career_id: str = Path(...)):
 
         # Static lines first (always shown)
         static_lines = [
-            {"text": f"> Initialising KNBS Labour Market Intelligence v4.2...", "cls": "dim"},
-            {"text": f"> Connection established — 2,847,392 active worker records loaded.", "cls": ""},
+            {"text": f"> Initialising task-level career assessment...", "cls": "dim"},
+            {"text": f"> Loading versioned editorial career profile.", "cls": ""},
             {"text": f"> Querying occupation: \"{c['title']}\" [{c['sector']}]", "cls": ""},
-            {"text": f"> KNBS workforce estimate: {c.get('workforce', 0):,} workers in Kenya.", "cls": "dim"},
-            {"text": f"> Loading ILO Automation Risk Framework for {c['sector']}...", "cls": ""},
-            {"text": f"> Cross-referencing WEF Future of Jobs Report 2025...", "cls": "dim"},
-            {"text": f"> Consulting McKinsey Global Institute — Africa 2024 Outlook...", "cls": "dim"},
+            {"text": f"> Separating task exposure from whole-job outcomes.", "cls": "dim"},
+            {"text": f"> Checking human, physical, and accountability signals...", "cls": ""},
+            {"text": f"> Checking AI augmentation opportunities...", "cls": "dim"},
+            {"text": f"> No unsupported labour-market claims loaded.", "cls": "dim"},
             {"text": f"> Analysing task decomposition matrix for {c['title']}...", "cls": ""},
         ]
 
@@ -366,7 +382,7 @@ async def scan_career(career_id: str = Path(...)):
                 {"text": f">   Routine cognitive tasks:       {round(r * 0.55)}% automatable", "cls": "dim"},
                 {"text": f">   Routine manual tasks:          {round(r * 0.28)}% automatable", "cls": "dim"},
                 {"text": f">   Complex social tasks:          {round(100 - r * 0.85)}% human-critical", "cls": "dim"},
-                {"text": "> Running displacement probability model (10,000 iterations)...", "cls": ""},
+            {"text": "> Combining task signals into an explainable status...", "cls": ""},
                 {"text": "> ", "cls": ""},
                 {"text": "> ANALYSIS COMPLETE.", "cls": "bright"},
                 {"text": f"> Automation risk index: {r}%", "cls": "bright"},
@@ -393,11 +409,10 @@ async def stream_claude_scan(c: dict) -> AsyncGenerator[str, None]:
 Career: {c['title']}
 Sector: {c['sector']}
 Sub-sector: {c.get('sub', '')}
-KNBS workforce estimate: {c.get('workforce', 0):,} workers
 Risk score (pre-calculated): {c['risk']}%
 
 Generate exactly 8 terminal output lines that a hacker-style scanning system would show.
-They should feel real — reference actual AI tools, real research, real statistics about this career in Kenya/Africa.
+They should describe task categories and uncertainty. Do not invent, cite, or imply statistics, studies, worker counts, or live data.
 Each line starts with ">" and uses a monospace terminal feel.
 The last 2 lines should be:
 "> ANALYSIS COMPLETE."
@@ -409,7 +424,7 @@ Return ONLY the JSON array, nothing else."""
     collected_text = ""
     try:
         async with client.messages.stream(
-            model="claude-sonnet-4-20250514",
+            model=os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514"),
             max_tokens=600,
             messages=[{"role": "user", "content": prompt}]
         ) as stream:
@@ -428,14 +443,14 @@ Return ONLY the JSON array, nothing else."""
         await save_scan_cache(c["id"], c["risk"], [l["text"] for l in ai_lines], verdict)
         yield f"data: {json.dumps({'type':'done','risk':c['risk'],'verdict':verdict})}\n\n"
 
-    except Exception as e:
+    except Exception:
         # Fallback if Claude fails
         r = c["risk"]
         fallback_lines = [
             {"text": f">   Routine cognitive tasks:       {round(r * 0.55)}% automatable", "cls": "dim"},
             {"text": f">   Routine manual tasks:          {round(r * 0.28)}% automatable", "cls": "dim"},
             {"text": f">   Complex interpersonal tasks:   {round(100 - r * 0.85)}% human-critical", "cls": "dim"},
-            {"text": "> Monte Carlo simulation complete (10,000 iterations)", "cls": ""},
+            {"text": "> Task-signal calculation complete", "cls": ""},
             {"text": "> ANALYSIS COMPLETE.", "cls": "bright"},
             {"text": f"> Automation risk index: {r}%", "cls": "bright"},
         ]
@@ -505,8 +520,8 @@ async def collect_email(lead: EmailLead):
             )
             await db.commit()
         return {"status": "ok", "message": "Email collected"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Email could not be saved")
 
 
 # ── POST /api/session ─────────────────────────────────────────────────────────
@@ -527,8 +542,8 @@ async def save_session(session: SessionSave):
             )
             await db.commit()
         return {"status": "ok"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Session could not be saved")
 
 
 # ── GET /api/stats ─────────────────────────────────────────────────────────────
